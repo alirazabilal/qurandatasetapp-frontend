@@ -8,7 +8,7 @@ function Admin() {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("adminToken");
-        const res = await fetch("http://localhost:5000/api/admin/ayats", {
+        const res = await fetch("https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.status === 401) {
