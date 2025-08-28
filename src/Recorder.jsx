@@ -18,7 +18,7 @@ function Recorder() {
   const fetchNextAyat = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/ayats/next');
+      const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/ayats/next');
       const data = await response.json();
 
       if (data.ayat) {
@@ -90,7 +90,7 @@ function Recorder() {
     formData.append('recorderName', recorderName);
 
     try {
-      const response = await fetch('http://localhost:5000/api/recordings/save', {
+      const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/recordings/save', {
         method: 'POST',
         body: formData
       });
