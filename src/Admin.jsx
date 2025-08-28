@@ -83,7 +83,7 @@ function Admin() {
   const downloadZip = () => {
     const token = localStorage.getItem("adminToken");
     const link = document.createElement("a");
-    link.href = `http://localhost:5000/api/download-audios`;
+    link.href = `https://qurandatasetapp-backend-1.onrender.com/api/download-audios`;
     link.setAttribute("download", "audios.zip");
     link.setAttribute("Authorization", `Bearer ${token}`);
     link.click();
