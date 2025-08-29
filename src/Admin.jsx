@@ -28,8 +28,12 @@ function Admin() {
 const deleteRecording = async (ayatIndex) => {
     if (!window.confirm("Are you sure you want to delete this recording?")) return;
     try {
+              const token = localStorage.getItem("adminToken");
+
       const res = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/recordings/${ayatIndex}`, {
         method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+
       });
       if (res.ok) {
         alert("Recording deleted!");
