@@ -8,7 +8,7 @@ function App() {
   return (
     <Router>
       <nav className="navbar">
-        <Link to="/">Recorder</Link> | <Link to="/admin">Admin</Link>
+        <Link style={{"color": "yellow"}} to="/">Recorder</Link> | <Link style={{"color": "yellow"}} to="/admin">Admin</Link>
       </nav>
       <Routes>
         <Route path="/" element={<Recorder />} />
