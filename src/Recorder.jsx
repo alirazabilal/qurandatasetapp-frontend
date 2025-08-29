@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './App.css';
+import {jwtDecode} from 'jwt-decode';
 
 function Recorder() {
   const [currentAyat, setCurrentAyat] = useState(null);
@@ -9,47 +11,81 @@ function Recorder() {
   const [saving, setSaving] = useState(false);
   const [recordedCount, setRecordedCount] = useState(0);
   const [totalAyats, setTotalAyats] = useState(0);
-  const [recorderName, setRecorderName] = useState(""); // ✅ new state
-
+  const [userName, setUserName] = useState('');
+  const navigate = useNavigate();
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 
-  // fetch next ayat...
+  // Get user name from token
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserName(decoded.name);
+      } catch (err) {
+        console.error('Invalid token:', err);
+        navigate('/login');
+      }
+    } else {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  // Fetch next unrecorded ayat
   const fetchNextAyat = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/ayats/next');
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/ayats/next', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const data = await response.json();
 
-      if (data.ayat) {
-        setCurrentAyat(data.ayat);
-        setRecordedCount(data.recordedCount);
-        setTotalAyats(data.totalAyats);
-        setAudioBlob(null);
+      if (response.ok) {
+        if (data.ayat) {
+          setCurrentAyat({ ...data.ayat, isRecorded: false });
+          setRecordedCount(data.recordedCount);
+          setTotalAyats(data.totalAyats);
+          setAudioBlob(null);
+        } else {
+          setCurrentAyat(null);
+        }
       } else {
-        setCurrentAyat(null);
+        alert(data.error || 'Failed to fetch next ayat');
+        if (response.status === 401) navigate('/login');
       }
     } catch (error) {
       console.error('Error fetching ayat:', error);
+      alert('Failed to fetch next ayat');
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch next unrecorded ayat after current index
   const fetchNextAfterIndex = async (currentIndex) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/ayats/next-after/${currentIndex}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/ayats/next-after/${currentIndex}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const data = await response.json();
 
-      if (data.ayat) {
-        setCurrentAyat({...data.ayat, isRecorded: false}); // Since it's unrecorded
-        setRecordedCount(data.recordedCount);
-        setTotalAyats(data.totalAyats);
-        setAudioBlob(null);
+      if (response.ok) {
+        if (data.ayat) {
+          setCurrentAyat({ ...data.ayat, isRecorded: false });
+          setRecordedCount(data.recordedCount);
+          setTotalAyats(data.totalAyats);
+          setAudioBlob(null);
+        } else {
+          alert('No more unrecorded ayats available after this one');
+          setCurrentAyat(null);
+        }
       } else {
-        alert('No more unrecorded ayats available after this one');
-        setCurrentAyat(null);
+        alert(data.error || 'Failed to fetch next ayat');
+        if (response.status === 401) navigate('/login');
       }
     } catch (error) {
       console.error('Error fetching next ayat after index:', error);
@@ -58,11 +94,10 @@ function Recorder() {
       setLoading(false);
     }
   };
-  
 
   useEffect(() => {
-    fetchNextAyat();
-  }, []);
+    if (userName) fetchNextAyat();
+  }, [userName]);
 
   // Start recording
   const startRecording = async () => {
@@ -101,8 +136,8 @@ function Recorder() {
 
   // Save recording
   const saveRecording = async () => {
-    if (!audioBlob || !currentAyat || !recorderName) {
-      alert("Please enter your unique name before saving.");
+    if (!audioBlob || !currentAyat || !userName) {
+      alert('Please log in to save recordings.');
       return;
     }
 
@@ -111,21 +146,22 @@ function Recorder() {
     formData.append('audio', audioBlob, 'recording.webm');
     formData.append('ayatIndex', currentAyat.index);
     formData.append('ayatText', currentAyat.text);
-    formData.append('recorderName', recorderName);
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/recordings/save', {
         method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
         body: formData
       });
 
       const result = await response.json();
-
       if (response.ok) {
         alert('Recording saved successfully!');
         fetchNextAyat();
       } else {
         alert(result.error || 'Failed to save recording');
+        if (response.status === 401) navigate('/login');
       }
     } catch (error) {
       console.error('Error saving recording:', error);
@@ -138,7 +174,8 @@ function Recorder() {
   const discardRecording = () => {
     setAudioBlob(null);
   };
-  // Handle Skip button click: Skip to next unrecorded after current
+
+  // Handle Skip button click
   const handleSkip = () => {
     if (currentAyat) {
       fetchNextAfterIndex(currentAyat.index);
@@ -147,6 +184,17 @@ function Recorder() {
     }
   };
 
+  // Handle Logout
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUserName('');
+    navigate('/login');
+  };
+
+  if (!userName) {
+    return <div className="container"><div className="loading">Authenticating...</div></div>;
+  }
+
   if (loading) {
     return <div className="container"><div className="loading">Loading...</div></div>;
   }
@@ -154,6 +202,10 @@ function Recorder() {
   if (!currentAyat) {
     return (
       <div className="container">
+        <div className="header">
+          <h1>Quran Ayat Recording System</h1>
+          <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
+        </div>
         <div className="complete-message">
           <h2>🎉 All Ayats Recorded!</h2>
           <p>You have successfully recorded all {totalAyats} ayats.</p>
@@ -165,38 +217,29 @@ function Recorder() {
   return (
     <div className="container">
       <div className="header">
-        <h1>Quran Ayat Recording System</h1>
-        <div className="progress">
-          <span>Progress: {recordedCount} / {totalAyats} ayats recorded</span>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${(recordedCount / totalAyats) * 100}%` }}></div>
-          </div>
+        <h1 style={{"color":"yellow"}}>Quran Ayat Recording System</h1>
+        <div>
+          <span  style={{"color":"yellow"}}>Logged in as: {userName}</span>
+          <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
         </div>
       </div>
-
-      {/* ✅ Unique name input */}
-      <div style={{"margin":30}} className="recorder-name-input">
-        <label >Enter your unique name (always use this name when re record):</label>
-        <input
-          type="text"
-          value={recorderName}
-          onChange={(e) => setRecorderName(e.target.value)}
-          placeholder="Your Name"
-          required
-        />
+      <div className="progress">
+        <span style={{"color":"yellow"}}>Progress: {recordedCount} / {totalAyats} ayats recorded</span>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${(recordedCount / totalAyats) * 100}%` }}></div>
+        </div>
       </div>
-
       <div className="ayat-card">
         <div className="ayat-header">
-          <span className="ayat-number">Ayat #{currentAyat.index + 1}</span>
+          <span style={{"color":"black"}} className="ayat-number">Ayat #{currentAyat.index + 1}</span>
         </div>
-        <div className="quran-text ayat-text">{currentAyat.text}</div>
+        <div style={{"color":"black"}} className="quran-text ayat-text">{currentAyat.text}</div>
       </div>
-
       <div className="controls">
         {!audioBlob ? (
           <div className="recording-controls">
             <button
+            style={{"color":"yellow"}}
               className="btn btn-skip"
               onClick={handleSkip}
               disabled={loading || saving}
@@ -204,28 +247,29 @@ function Recorder() {
               ⏭ Skip to Next Unrecorded Ayat
             </button>
             {!isRecording ? (
-              <button className="btn btn-record" onClick={startRecording}>
+              <button style={{"color":"yellow"}} className="btn btn-record" onClick={startRecording} disabled={loading || saving}>
                 🎤 Start Recording
               </button>
             ) : (
-              <button className="btn btn-stop" onClick={stopRecording}>
+              <button style={{"color":"yellow"}} className="btn btn-stop" onClick={stopRecording} disabled={loading || saving}>
                 ⏹ Stop Recording
               </button>
             )}
-            {isRecording && <div className="recording-indicator">Recording...</div>}
+            {isRecording && <div style={{"color":"yellow"}} className="recording-indicator">Recording...</div>}
           </div>
         ) : (
           <div className="playback-controls">
             <audio controls src={URL.createObjectURL(audioBlob)} />
             <div className="button-group">
               <button
+              style={{"color":"yellow"}}
                 className="btn btn-save"
                 onClick={saveRecording}
-                disabled={saving || !recorderName.trim()}
+                disabled={saving}
               >
                 {saving ? 'Saving...' : '💾 Save Recording'}
               </button>
-              <button className="btn btn-discard" onClick={discardRecording}>
+              <button style={{"color":"yellow"}} className="btn btn-discard" onClick={discardRecording} disabled={saving}>
                 🗑️ Discard
               </button>
             </div>
