@@ -36,6 +36,30 @@ function Recorder() {
     }
   };
 
+  const fetchNextAfterIndex = async (currentIndex) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://localhost:5000/api/ayats/next-after/${currentIndex}`);
+      const data = await response.json();
+
+      if (data.ayat) {
+        setCurrentAyat({...data.ayat, isRecorded: false}); // Since it's unrecorded
+        setRecordedCount(data.recordedCount);
+        setTotalAyats(data.totalAyats);
+        setAudioBlob(null);
+      } else {
+        alert('No more unrecorded ayats available after this one');
+        setCurrentAyat(null);
+      }
+    } catch (error) {
+      console.error('Error fetching next ayat after index:', error);
+      alert('Failed to fetch next ayat');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
   useEffect(() => {
     fetchNextAyat();
   }, []);
@@ -114,6 +138,14 @@ function Recorder() {
   const discardRecording = () => {
     setAudioBlob(null);
   };
+  // Handle Skip button click: Skip to next unrecorded after current
+  const handleSkip = () => {
+    if (currentAyat) {
+      fetchNextAfterIndex(currentAyat.index);
+    } else {
+      alert('No current ayat to skip from');
+    }
+  };
 
   if (loading) {
     return <div className="container"><div className="loading">Loading...</div></div>;
@@ -164,6 +196,13 @@ function Recorder() {
       <div className="controls">
         {!audioBlob ? (
           <div className="recording-controls">
+            <button
+              className="btn btn-skip"
+              onClick={handleSkip}
+              disabled={loading || saving}
+            >
+              ⏭ Skip to Next Unrecorded Ayat
+            </button>
             {!isRecording ? (
               <button className="btn btn-record" onClick={startRecording}>
                 🎤 Start Recording
