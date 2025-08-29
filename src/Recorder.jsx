@@ -158,7 +158,7 @@ function Recorder() {
         <div className="ayat-header">
           <span className="ayat-number">Ayat #{currentAyat.index + 1}</span>
         </div>
-        <div className="ayat-text">{currentAyat.text}</div>
+        <div className="quran-text ayat-text">{currentAyat.text}</div>
       </div>
 
       <div className="controls">
