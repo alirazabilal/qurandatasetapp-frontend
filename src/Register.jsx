@@ -18,7 +18,7 @@ function Register() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/users/register', {
+      const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim(), password: password.trim() })
@@ -69,5 +69,6 @@ function Register() {
     </div>
   );
 }
+
 
 export default Register;
