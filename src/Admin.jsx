@@ -25,6 +25,23 @@ function Admin() {
     };
     fetchData();
   }, []);
+const deleteRecording = async (ayatIndex) => {
+    if (!window.confirm("Are you sure you want to delete this recording?")) return;
+    try {
+      const res = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/recordings/${ayatIndex}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        alert("Recording deleted!");
+        fetchData(); // refresh table
+      } else {
+        const err = await res.json();
+        alert("Failed: " + err.error);
+      }
+    } catch (err) {
+      console.error("Error deleting recording:", err);
+    }
+  };
 
   const downloadCSVComplete = () => {
     const headers = ["#", "Ayat Text", "Recording Name", "Recorded At", "Recorder Name"];
@@ -113,6 +130,7 @@ function Admin() {
             <th>Recording Name</th>
             <th>Recorded At</th>
             <th>Recorder Name</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -125,6 +143,18 @@ function Admin() {
               <td>{ayat.audioPath || "-"}</td>
               <td>{ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleString() : "-"}</td>
               <td>{ayat.recorderName || "-"}</td>
+              <td>
+                {ayat.isRecorded ? (
+                  <button
+                    style={{ color: "white", background: "red", padding: "5px 10px", border: "none", borderRadius: "4px" }}
+                    onClick={() => deleteRecording(ayat.index)}
+                  >
+                    Delete
+                  </button>
+                ) : (
+                  "-"
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
