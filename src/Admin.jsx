@@ -130,7 +130,7 @@ const deleteRecording = async (ayatIndex) => {
             <th>Recording Name</th>
             <th>Recorded At</th>
             <th>Recorder Name</th>
-            <th>Action</th>
+            <th>Action</th> {/* new column */}
           </tr>
         </thead>
         <tbody>
