@@ -1,0 +1,88 @@
+.container {
+  padding: 20px;
+  max-width: 100%;
+  overflow-x: auto; /* fallback horizontal scroll */
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+button {
+  margin-right: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+.ayat-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.ayat-table th,
+.ayat-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.ayat-table th {
+  background: #f4f4f4;
+  font-weight: bold;
+}
+
+/* ✅ Responsive design */
+@media (max-width: 768px) {
+  .ayat-table,
+  .ayat-table thead,
+  .ayat-table tbody,
+  .ayat-table th,
+  .ayat-table td,
+  .ayat-table tr {
+    display: block;
+  }
+
+  .ayat-table thead tr {
+    display: none; /* hide table header */
+  }
+
+  .ayat-table tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .ayat-table td {
+    text-align: left;
+    padding: 6px 10px;
+    position: relative;
+    font-size: 13px;
+  }
+
+  .ayat-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: block;
+    margin-bottom: 4px;
+    color: #555;
+  }
+
+  audio {
+    width: 100%;
+  }
+}
