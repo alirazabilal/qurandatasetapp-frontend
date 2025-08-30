@@ -144,7 +144,29 @@ const deleteRecording = async (ayatIndex) => {
             <td style={{"color":"black"}} data-label="#"> {i + 1} </td>
             <td style={{"color":"black", textAlign: "right"}} data-label="Ayat Text">{ayat.text}</td>
             <td style={{"color":"black"}} data-label="Status">{ayat.isRecorded ? "✔ Recorded" : "❌ Not Recorded"}</td>
-            <td style={{"color":"black"}}data-label="Recording">{ayat.audioUrl ? <audio controls src={ayat.audioUrl} /> : "-"}</td>
+            <td style={{ color: "black" }} data-label="Recording">
+  {ayat.audioUrl ? (
+    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <audio controls src={ayat.audioUrl} />
+      <a 
+        href={ayat.audioUrl} 
+        download={`ayat_${i + 1}_${ayat.recorderName || "unknown"}.webm`}
+        style={{ 
+          background: "#2563eb", 
+          color: "white", 
+          padding: "5px 10px", 
+          borderRadius: "6px", 
+          textDecoration: "none",
+          fontSize: "0.8rem"
+        }}
+      >
+        ⬇ Download
+      </a>
+    </div>
+  ) : (
+    "-"
+  )}
+</td>
             <td style={{"color":"black"}} data-label="Recording Name">{ayat.audioPath || "-"}</td>
             <td style={{"color":"black"}} data-label="Recorded At">{ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleString() : "-"}</td>
             <td style={{"color":"black"}} data-label="Recorder Name">{ayat.recorderName || "-"}</td>
