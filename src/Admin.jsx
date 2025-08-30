@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./Admin.css"
 
 function Admin() {
   const [ayats, setAyats] = useState([]);
@@ -102,11 +103,11 @@ const deleteRecording = async (ayatIndex) => {
 };
 
   const downloadZip = () => {
-    const token = localStorage.getItem("adminToken");
+   
     const link = document.createElement("a");
     link.href = `https://qurandatasetapp-backend-1.onrender.com/api/download-audios`;
     link.setAttribute("download", "audios.zip");
-    link.setAttribute("Authorization", `Bearer ${token}`);
+    
     link.click();
   };
 
@@ -138,30 +139,31 @@ const deleteRecording = async (ayatIndex) => {
           </tr>
         </thead>
         <tbody>
-          {ayats.map((ayat, i) => (
-            <tr key={i}>
-              <td>{i + 1}</td>
-              <td style={{ textAlign: "right" }}>{ayat.text}</td>
-              <td>{ayat.isRecorded ? "✔ Recorded" : "❌ Not Recorded"}</td>
-              <td>{ayat.audioUrl ? <audio controls src={ayat.audioUrl} /> : "-"}</td>
-              <td>{ayat.audioPath || "-"}</td>
-              <td>{ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleString() : "-"}</td>
-              <td>{ayat.recorderName || "-"}</td>
-              <td>
-                {ayat.isRecorded ? (
-                  <button
-                    style={{ color: "white", background: "red", padding: "5px 10px", border: "none", borderRadius: "4px" }}
-                    onClick={() => deleteRecording(ayat.index)}
-                  >
-                    Delete
-                  </button>
-                ) : (
-                  "-"
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
+        {ayats.map((ayat, i) => (
+          <tr key={i}>
+            <td style={{"color":"black"}} data-label="#"> {i + 1} </td>
+            <td style={{"color":"black", textAlign: "right"}} data-label="Ayat Text">{ayat.text}</td>
+            <td style={{"color":"black"}} data-label="Status">{ayat.isRecorded ? "✔ Recorded" : "❌ Not Recorded"}</td>
+            <td style={{"color":"black"}}data-label="Recording">{ayat.audioUrl ? <audio controls src={ayat.audioUrl} /> : "-"}</td>
+            <td style={{"color":"black"}} data-label="Recording Name">{ayat.audioPath || "-"}</td>
+            <td style={{"color":"black"}} data-label="Recorded At">{ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleString() : "-"}</td>
+            <td style={{"color":"black"}} data-label="Recorder Name">{ayat.recorderName || "-"}</td>
+            <td style={{"color":"black"}} data-label="Action">
+              {ayat.isRecorded ? (
+                <button
+                  style={{ color: "white", background: "red", padding: "5px 10px", border: "none", borderRadius: "4px" }}
+                  onClick={() => deleteRecording(ayat.index)}
+                >
+                  Delete
+                </button>
+              ) : (
+                "-"
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+
       </table>
     </div>
   );
