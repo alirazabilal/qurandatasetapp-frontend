@@ -11,10 +11,10 @@ import './App.css';
 function App() {
   return (
     <Router>
-      <nav className="navbar">
-        <Link style={{ color: 'yellow' }} to="/">Home</Link> |{' '}
-        <Link style={{ color: 'yellow' }} to="/recorder">Recorder</Link> |{' '}
-        <Link style={{ color: 'yellow' }} to="/admin">Admin</Link>
+      <nav className="navmy navbar">
+        <Link style={{ color: 'blue' }} to="/">Home</Link> |{' '}
+        <Link style={{ color: 'blue' }} to="/recorder">Recorder</Link> |{' '}
+        <Link style={{ color: 'blue' }} to="/admin">Admin</Link>
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
