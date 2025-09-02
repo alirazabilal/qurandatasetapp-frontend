@@ -5,6 +5,7 @@ import './App.css';
 function Register() {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [gender, setGender] = useState(''); // ✅ new state
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -12,8 +13,8 @@ function Register() {
     e.preventDefault();
     setError('');
 
-    if (!name.trim() || !password.trim()) {
-      setError('Name and password are required');
+    if (!name.trim() || !password.trim() || !gender) {
+      setError('Name, password, and gender are required');
       return;
     }
 
@@ -21,12 +22,17 @@ function Register() {
       const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), password: password.trim() })
+        body: JSON.stringify({
+          name: name.trim(),
+          password: password.trim(),
+          gender // ✅ include gender
+        })
       });
 
       const result = await response.json();
       if (response.ok) {
         localStorage.setItem('token', result.token);
+        localStorage.setItem('gender', result.gender); // ✅ store gender if needed later
         navigate('/recorder');
       } else {
         setError(result.error || 'Registration failed');
@@ -60,6 +66,17 @@ function Register() {
             required
           />
         </div>
+
+        {/* ✅ Gender selection */}
+        <div className="form-group">
+          <label>Gender:</label>
+          <select value={gender} onChange={(e) => setGender(e.target.value)} required>
+            <option value="">-- Select Gender --</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+
         {error && <p className="error">{error}</p>}
         <button type="submit" className="btn btn-auth">Register</button>
       </form>
@@ -70,5 +87,5 @@ function Register() {
   );
 }
 
-
 export default Register;
+
