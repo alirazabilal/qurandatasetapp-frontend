@@ -26,18 +26,28 @@ function AdminLogin({ onLogin }) {
   };
 
   return (
-    <div className="container">
-      <h2>Admin Login</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="password"
-          placeholder="Enter admin password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Login</button>
-      </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="auth-wrapper">
+      <div className="auth-card">
+        <h2>Admin Login</h2>
+        <form className="auth-form" onSubmit={handleLogin}>
+          <div className="form-group">
+            <label>Password:</label>
+            <input
+              type="password"
+              placeholder="Enter admin password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {error && <p className="error">{error}</p>}
+
+          <button type="submit" className="btn btn-auth">
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
