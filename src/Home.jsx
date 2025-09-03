@@ -4,14 +4,14 @@ import './App.css';
 
 function Home() {
   return (
-    <div className="central container">
+    <div className="home-wrapper">
       <h1>Welcome to Quran Ayat Recording System</h1>
       <div className="auth-buttons">
         <Link to="/register">
           <button className="btn btn-auth">Register</button>
         </Link>
         <Link to="/login">
-          <button style={{"margin-top":"20px"}} className="btn btn-auth">Login</button>
+          <button className="btn btn-auth">Login</button>
         </Link>
       </div>
     </div>
