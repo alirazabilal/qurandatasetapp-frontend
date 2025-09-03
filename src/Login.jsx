@@ -32,38 +32,47 @@ function Login() {
   };
 
   return (
-    <div className="container">
-      <h2>Login</h2>
-      <form className="auth-form" onSubmit={handleLogin}>
-        <div className="form-group">
-          <label>Name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter your name"
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
-            required
-          />
-        </div>
-        {error && <p className="error">{error}</p>}
-        <button type="submit" className="btn btn-auth">Login</button>
-      </form>
-      <p>
-        Don't have an account? <a href="/register">Register here</a>
-      </p>
+   <div className="auth-wrapper">
+      <div className="auth-card">
+        <h2>Login</h2>
+        <form className="auth-form" onSubmit={handleLogin}>
+          <div className="form-group">
+            <label>Name:</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Password:</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+              required
+            />
+          </div>
+
+          {error && <p className="error">{error}</p>}
+
+          <button type="submit" className="btn btn-auth">
+            Login
+          </button>
+        </form>
+
+        <p className="switch-auth">
+          Don’t have an account? <Link to="/register">Register here</Link>
+        </p>
+      </div>
     </div>
   );
 }
 
 export default Login;
+
 
