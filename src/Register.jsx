@@ -43,49 +43,59 @@ function Register() {
   };
 
   return (
-    <div className="container">
-      <h2>Register</h2>
-      <form className="auth-form" onSubmit={handleRegister}>
-        <div className="form-group">
-          <label>Unique Name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter unique name"
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
-            required
-          />
-        </div>
+    <div className="auth-wrapper">
+      <div className="auth-card">
+        <h2>Register</h2>
+        <form className="auth-form" onSubmit={handleRegister}>
+          <div className="form-group">
+            <label>Unique Name:</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter unique name"
+              required
+            />
+          </div>
 
-        {/* ✅ Gender selection */}
-        <div className="form-group">
-          <label>Gender:</label>
-          <select value={gender} onChange={(e) => setGender(e.target.value)} required>
-            <option value="">-- Select Gender --</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-        </div>
+          <div className="form-group">
+            <label>Password:</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+              required
+            />
+          </div>
 
-        {error && <p className="error">{error}</p>}
-        <button type="submit" className="btn btn-auth">Register</button>
-      </form>
-      <p>
-        Already have an account? <a href="/login">Login here</a>
-      </p>
+          <div className="form-group">
+            <label>Gender:</label>
+            <select
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              required
+            >
+              <option value="">-- Select Gender --</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+
+          {error && <p className="error">{error}</p>}
+
+          <button type="submit" className="btn btn-auth">
+            Register
+          </button>
+        </form>
+        <p className="switch-auth">
+          Already have an account? <Link to="/login">Login here</Link>
+        </p>
+      </div>
     </div>
   );
 }
 
 export default Register;
+
 
