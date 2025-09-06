@@ -74,11 +74,10 @@ font-size: 20px;
   background-color: orange;
 }
 
-
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+    sans-serif, "Amiri", "Scheherazade New", "Noto Naskh Arabic", serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
 }
@@ -169,8 +168,18 @@ body {
   font-size: 0.9rem;
   font-weight: bold;
 }
-
 .ayat-text {
+  font-size: 1.8rem;
+  line-height: 4.5rem;
+  color: #333;
+  text-align: right;
+  direction: rtl;
+  font-family: 'Amiri Quran', 'Scheherazade New', serif !important;
+  font-feature-settings: "liga", "clig", "kern";
+}
+
+
+/* .ayat-text {
   font-size: 1.8rem;
   line-height: 2.5rem;
   color: #333;
@@ -178,7 +187,7 @@ body {
   direction: rtl;
   font-family: 'Traditional Arabic', 'Noto Naskh Arabic', serif;
   padding: 1rem 0;
-}
+} */
 
 .controls {
   background: white;
