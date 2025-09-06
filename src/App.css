@@ -168,15 +168,25 @@ body {
   font-size: 0.9rem;
   font-weight: bold;
 }
+
+@font-face {
+  font-family: 'indopak_font';
+  src: url('/src/assets/PDMS_Saleem_QuranFont_shipped.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .ayat-text {
-  font-size: 1.8rem;
-  line-height: 4.5rem;
+  font-size: 3.2rem;
+  line-height: 5.5rem;
   color: #333;
   text-align: right;
   direction: rtl;
-  font-family: 'Amiri Quran', 'Scheherazade New', serif !important;
+  font-family: 'indopak_font','Amiri Quran', 'Scheherazade New', serif !important;
   font-feature-settings: "liga", "clig", "kern";
 }
+
+
 
 
 /* .ayat-text {
