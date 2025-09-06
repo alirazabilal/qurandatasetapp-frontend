@@ -169,6 +169,8 @@ body {
   font-weight: bold;
 }
 
+
+
 @font-face {
   font-family: 'indopak_font';
   src: url('/src/assets/PDMS_Saleem_QuranFont_shipped.ttf') format('truetype');
@@ -179,17 +181,14 @@ body {
 .ayat-text {
   /* font-size: 3.2rem;
   line-height: 5.5rem; */
-  font-size: clamp(1.6rem, 6vw, 3.2rem); /* min 1.6rem, max 3.2rem */
-  line-height: 1.8em; /* keeps balanced spacing */
+  font-size: clamp(2.2rem, 7vw, 3.8rem);
+  line-height: 1.8em;
   color: #333;
   text-align: right;
   direction: rtl;
   font-family: 'indopak_font','Amiri Quran', 'Scheherazade New', serif !important;
   font-feature-settings: "liga", "clig", "kern";
 }
-
-
-
 
 
 /* .ayat-text {
@@ -346,8 +345,13 @@ body {
   }
   
   .ayat-text {
-    font-size: 1.4rem;
-    line-height: 2rem;
+    font-size: clamp(2.2rem, 7vw, 3.8rem); 
+  line-height: 1.3em;
+  color: #333;
+  text-align: right;
+  direction: rtl;
+  font-family: 'indopak_font','Amiri Quran', 'Scheherazade New', serif !important;
+  font-feature-settings: "liga", "clig", "kern";
   }
   
   .button-group {
