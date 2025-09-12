@@ -147,7 +147,7 @@ function Admin() {
               <td style={{ color: "black" }} data-label="#">
                 {i + 1}
               </td>
-              <td style={{ color: "black", textAlign: "right" }} data-label="Ayat Text">
+              <td className="ayat-text2" style={{ color: "black", textAlign: "right" }} data-label="Ayat Text">
                 {ayat.text}
               </td>
               <td style={{ color: "black" }} data-label="Status">
