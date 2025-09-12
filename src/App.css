@@ -173,7 +173,7 @@ body {
 
 @font-face {
   font-family: 'indopak_font';
-  src: url('/src/assets/PDMS_Saleem_QuranFont_shipped.ttf') format('truetype');
+  src: url('/src/assets/Al\ Majeed\ Quranic\ Font_shiped.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -181,8 +181,8 @@ body {
 .ayat-text {
   /* font-size: 3.2rem;
   line-height: 5.5rem; */
-  font-size: clamp(2.2rem, 7vw, 3.8rem);
-  line-height: 1.8em;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  line-height: 1.4em;
   color: #333;
   text-align: right;
   direction: rtl;
@@ -345,8 +345,8 @@ body {
   }
   
   .ayat-text {
-    font-size: clamp(2.2rem, 7vw, 3.8rem); 
-  line-height: 1.3em;
+    font-size: clamp(1.8rem, 6vw, 3.4rem); 
+  line-height: 1.4em;
   color: #333;
   text-align: right;
   direction: rtl;
