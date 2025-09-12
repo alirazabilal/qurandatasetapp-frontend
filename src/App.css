@@ -173,7 +173,7 @@ body {
 
 @font-face {
   font-family: 'indopak_font';
-  src: url('/src/assets/Al\ Majeed\ Quranic\ Font_shiped.ttf') format('truetype');
+   src: url('/src/assets/Al Majeed Quranic Font_shiped.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
