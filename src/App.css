@@ -346,7 +346,7 @@ body {
   
   .ayat-text {
     font-size: clamp(2.2rem, 7vw, 3.8rem); 
-  line-height: 1.3em;
+  line-height: 1.9em;
   color: #333;
   text-align: right;
   direction: rtl;
