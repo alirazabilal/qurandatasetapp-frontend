@@ -217,21 +217,21 @@ function Recorder() {
   return (
     <div className="container">
       <div className="header">
-        <h1 style={{"color":"yellow"}}>Quran Ayat Recording System</h1>
+        <h1 style={{"color":"white"}}>Quran Ayat Recording System</h1>
         <div>
-          <span  style={{"color":"yellow"}}>Logged in as: {userName}</span>
+          <span  style={{"color":"white"}}>Logged in as: {userName}</span>
           <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
         </div>
       </div>
       <div className="progress">
-        <span style={{"color":"yellow"}}>Progress: {recordedCount} / {totalAyats} ayats recorded</span>
+        <span style={{"color":"white"}}>Progress: {recordedCount} / {totalAyats} ayats recorded</span>
         <div className="progress-bar">
           <div className="progress-fill" style={{ width: `${(recordedCount / totalAyats) * 100}%` }}></div>
         </div>
       </div>
       <div className="ayat-card">
         <div className="ayat-header">
-          <span style={{"color":"black"}} className="ayat-number">Ayat #{currentAyat.index + 1}</span>
+          <span style={{"color":"white"}} className="ayat-number">Ayat #{currentAyat.index + 1}</span>
         </div>
         <div style={{"color":"black"}} className="quran-text ayat-text">{currentAyat.text}</div>
       </div>
@@ -239,7 +239,6 @@ function Recorder() {
         {!audioBlob ? (
           <div className="recording-controls">
             <button
-            style={{"color":"yellow"}}
               className="btn btn-skip"
               onClick={handleSkip}
               disabled={loading || saving}
@@ -247,22 +246,22 @@ function Recorder() {
               ⏭ Skip to Next Unrecorded Ayat
             </button>
             {!isRecording ? (
-              <button style={{"color":"yellow"}} className="btn btn-record" onClick={startRecording} disabled={loading || saving}>
+              <button style={{"color":"white"}} className="btn btn-record" onClick={startRecording} disabled={loading || saving}>
                 🎤 Start Recording
               </button>
             ) : (
-              <button style={{"color":"yellow"}} className="btn btn-stop" onClick={stopRecording} disabled={loading || saving}>
+              <button style={{"color":"white"}} className="btn btn-stop" onClick={stopRecording} disabled={loading || saving}>
                 ⏹ Stop Recording
               </button>
             )}
-            {isRecording && <div style={{"color":"yellow"}} className="recording-indicator">Recording...</div>}
+            {isRecording && <div style={{"color":"white"}} className="recording-indicator">Recording...</div>}
           </div>
         ) : (
           <div className="playback-controls">
             <audio controls src={URL.createObjectURL(audioBlob)} />
             <div className="button-group">
               <button
-              style={{"color":"yellow"}}
+              style={{"color":"white"}}
                 className="btn btn-save"
                 onClick={saveRecording}
                 disabled={saving}
