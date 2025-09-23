@@ -187,8 +187,7 @@ body {
   color: #333;
   text-align: right;
   direction: rtl;
-   font-family: 'Amiri', 'Noto Sans Arabic', 'Scheherazade New', serif !important;
-
+ font-family: 'indopak_font','Amiri Quran', 'Scheherazade New', serif !important;
   font-feature-settings: "liga", "clig", "kern";
 }
 
