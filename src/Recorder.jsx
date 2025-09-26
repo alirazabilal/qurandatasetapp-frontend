@@ -215,11 +215,13 @@ function Recorder() {
   }
 
   return (
+    <div className="recorder-page">
     <div className="container">
       <div className="header">
         <h1 style={{"color":"white"}}>Quran Ayat Recording System</h1>
         <div>
-          <span  style={{"color":"white"}}>Logged in as: {userName}</span>
+          <span  style={{  color: "white",
+    fontSize: window.innerWidth <= 992 ? "2rem" : "1rem"}}>Logged in as: {userName}</span>
           <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
         </div>
       </div>
@@ -275,6 +277,7 @@ function Recorder() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
