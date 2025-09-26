@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Home from './Home';
 import Recorder from './Recorder';
-import SurahParaSelector from './SurahParaSelector';
+//import SurahParaSelector from './SurahParaSelector';
 import Admin from './Admin';
 import AdminLogin from './AdminLogin';
 import Register from './Register';
