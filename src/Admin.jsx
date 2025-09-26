@@ -50,6 +50,60 @@ function Admin() {
     }
   };
 
+  // verifiation function
+  const toggleVerification = async (ayatIndex) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      const res = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/recordings/${ayatIndex}/verify`, {
+        method: "PATCH",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        alert(data.verified ? "✅ Marked as Verified!" : "❌ Mark removed!");
+        fetchData(); // refresh table
+      } else {
+        const err = await res.json();
+        alert("Failed: " + err.error);
+      }
+    } catch (err) {
+      console.error("Error updating verification:", err);
+    }
+  };
+
+  const verifyRecording = async (ayatIndex) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      const res = await fetch(
+        `https://qurandatasetapp-backend-1.onrender.com/api/recordings/${ayatIndex}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        alert(data.verified ? "✅ Verified!" : "❌ Unverified!");
+        fetchData(); // refresh table
+      } else {
+        const err = await res.json();
+        alert("Failed: " + err.error);
+      }
+    } catch (err) {
+      console.error("Error updating verification:", err);
+    }
+  };
+
+
   const downloadCSVComplete = () => {
     const headers = ["#", "Ayat Text", "Recording Name", "Recorded At", "Recorder Name", "Gender"];
     const rows = ayats.map((ayat, i) => [
@@ -113,6 +167,32 @@ function Admin() {
     link.click();
   };
 
+  // const toggleVerify = async (ayatIndex, newStatus) => {
+  //   try {
+  //     const token = localStorage.getItem("adminToken");
+  //     const res = await fetch(
+  //       `https://qurandatasetapp-backend-1.onrender.com/api/recordings/${ayatIndex}/verify`,
+  //       {
+  //         method: "PATCH",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //         body: JSON.stringify({ verified: newStatus }),
+  //       }
+  //     );
+  //     if (res.ok) {
+  //       fetchData(); // refresh table
+  //     } else {
+  //       const err = await res.json();
+  //       alert("Failed: " + err.error);
+  //     }
+  //   } catch (err) {
+  //     console.error("Error updating verification:", err);
+  //   }
+  // };
+
+
   if (loading) return <div className="container">Loading...</div>;
 
   return (
@@ -138,6 +218,7 @@ function Admin() {
             <th>Recorded At</th>
             <th>Recorder Name</th>
             <th>Gender</th> {/* ✅ new column */}
+            {/* <th>Verified</th> ✅ new column */}
             <th>Action</th>
           </tr>
         </thead>
@@ -188,6 +269,28 @@ function Admin() {
               <td style={{ color: "black" }} data-label="Gender">
                 {ayat.recorderGender || "-"}
               </td>
+              {/* <td style={{ color: "black" }} data-label="Verified">
+                {ayat.isRecorded ? (
+                  <>
+                    <button
+                      style={{
+                        color: "white",
+                        background: ayat.verified ? "orange" : "green",
+                        padding: "5px 10px",
+                        border: "none",
+                        borderRadius: "4px",
+                        marginRight: "5px",
+                      }}
+                      onClick={() => verifyRecording(ayat.index)}
+                    >
+                      {ayat.verified ? "Unverify" : "Verify"}
+                    </button>
+                  </>
+                ) : (
+                  "-"
+                )}
+              </td> */}
+
               <td style={{ color: "black" }} data-label="Action">
                 {ayat.isRecorded ? (
                   <button
