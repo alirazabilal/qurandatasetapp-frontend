@@ -227,17 +227,18 @@ function Recorder() {
     }
 
     return (
+        <div className="recorder-page">
         <div className="container">
             <div className="header">
-                <h1 style={{ color: "yellow" }}>Quran Ayat Recording System</h1>
+                <h1 style={{ color: "white" }}>Quran Ayat Recording System</h1>
                 <div>
-                    <span style={{ color: "yellow" }}>Logged in as: {userName}</span>
+                    <span style={{ color: "white" }}>Logged in as: {userName}</span>
                     <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
                 </div>
             </div>
 
             <div className="progress">
-                <span style={{ color: "yellow" }}>Progress: {recordedCount} / {totalAyats} ayats recorded</span>
+                <span style={{ color: "white" }}>Progress: {recordedCount} / {totalAyats} ayats recorded</span>
                 <div className="progress-bar">
                     <div className="progress-fill" style={{ width: `${(recordedCount / totalAyats) * 100}%` }}></div>
                 </div>
@@ -283,7 +284,7 @@ function Recorder() {
                 {!audioBlob ? (
                     <div className="recording-controls">
                         <button
-                            style={{ color: "yellow" }}
+                            style={{ color: "white" }}
                             className="btn btn-skip"
                             onClick={handleSkip}
                             disabled={loading || saving}
@@ -292,7 +293,7 @@ function Recorder() {
                         </button>
                         {!isRecording ? (
                             <button
-                                style={{ color: "yellow" }}
+                                style={{ color: "white" }}
                                 className="btn btn-record"
                                 onClick={startRecording}
                                 disabled={loading || saving}
@@ -301,7 +302,7 @@ function Recorder() {
                             </button>
                         ) : (
                             <button
-                                style={{ color: "yellow" }}
+                                style={{ color: "white" }}
                                 className="btn btn-stop"
                                 onClick={stopRecording}
                                 disabled={loading || saving}
@@ -309,14 +310,14 @@ function Recorder() {
                                 ⏹ Stop Recording
                             </button>
                         )}
-                        {isRecording && <div style={{ color: "yellow" }} className="recording-indicator">Recording...</div>}
+                        {isRecording && <div style={{ color: "white" }} className="recording-indicator">Recording...</div>}
                     </div>
                 ) : (
                     <div className="playback-controls">
                         <audio controls src={URL.createObjectURL(audioBlob)} />
                         <div className="button-group">
                             <button
-                                style={{ color: "yellow" }}
+                                style={{ color: "white" }}
                                 className="btn btn-save"
                                 onClick={saveRecording}
                                 disabled={saving}
@@ -324,7 +325,7 @@ function Recorder() {
                                 {saving ? 'Saving...' : '💾 Save Recording'}
                             </button>
                             <button
-                                style={{ color: "yellow" }}
+                                style={{ color: "white" }}
                                 className="btn btn-discard"
                                 onClick={discardRecording}
                                 disabled={saving}
@@ -335,6 +336,7 @@ function Recorder() {
                     </div>
                 )}
             </div>
+        </div>
         </div>
     );
 }
