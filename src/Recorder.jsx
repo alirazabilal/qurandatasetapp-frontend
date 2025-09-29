@@ -41,15 +41,9 @@ function Recorder() {
             const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/ayats/next', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            // const response = await fetch('http://localhost:5000/api/ayats/next' , {
-            //     headers: { Authorization: `Bearer ${token}` }
-            // });
             const data = await response.json();
-            console.log('Full API Response:', data); // ✅ DEBUG: Full response
-
             if (response.ok) {
                 if (data.ayat) {
-                    console.log('Received ayat data:', data.ayat); // ✅ DEBUG: Ayat data
                     setCurrentAyat({ ...data.ayat, isRecorded: false });
                     setRecordedCount(data.recordedCount);
                     setTotalAyats(data.totalAyats);
@@ -77,9 +71,6 @@ function Recorder() {
             const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/ayats/next-after/${currentIndex}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            // const response = await fetch(`http://localhost:5000/api/ayats/next-after/${currentIndex}`, {
-            //     headers: { Authorization: `Bearer ${token}` }
-            // });
             const data = await response.json();
             if (response.ok) {
                 if (data.ayat) {
@@ -162,11 +153,6 @@ function Recorder() {
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData
             });
-            // const response = await fetch('http://localhost:5000/api/recordings/save', {
-            //     method: 'POST',
-            //     headers: { Authorization: `Bearer ${token}` },
-            //     body: formData
-            // });
             const result = await response.json();
             if (response.ok) {
                 alert('Recording saved successfully!');
@@ -210,7 +196,7 @@ function Recorder() {
     if (loading) {
         return <div className="container"><div className="loading">Loading...</div></div>;
     }
-    console.log("Current Ayat Data:", currentAyat);
+
     if (!currentAyat) {
         return (
             <div className="container">
@@ -228,118 +214,115 @@ function Recorder() {
 
     return (
         <div className="recorder-page">
-        <div className="container">
-            <div className="header">
-                <h1 style={{ color: "white" }}>Quran Ayat Recording System</h1>
-                <div>
-                    <span style={{ color: "white" }}>Logged in as: {userName}</span>
-                    <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
+            <div className="container">
+                <div className="header">
+                    <h1 style={{ color: "white" }}>Quran Ayat Recording System</h1>
+                    <div>
+                        <span className="logged-in">Logged in as: {userName}</span>
+                        <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
+                    </div>
                 </div>
-            </div>
 
-            <div className="progress">
-                <span style={{ color: "white" }}>Progress: {recordedCount} / {totalAyats} ayats recorded</span>
-                <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${(recordedCount / totalAyats) * 100}%` }}></div>
+                <div className="progress">
+                    <span style={{ color: "white" }}>Progress: {recordedCount} / {totalAyats} ayats recorded</span>
+                    <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: `${(recordedCount / totalAyats) * 100}%` }}></div>
+                    </div>
                 </div>
-            </div>
 
-            <div className="ayat-card">
-                <div className="ayat-header">
-                    <div style={{ color: "black", marginBottom: "10px" }}>
-                        <div className="ayat-number">
-                            {/* Show proper ayah info instead of internal index */}
+                <div className="ayat-card">
+                    {/* ✅ Ayah header styled in one line */}
+                    <div className="ayat-header" style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "10px",
+                        color: "black"
+                    }}>
+                        <div className="ayat-number" style={{ fontWeight: "bold" }}>
                             Ayah #{currentAyat.ayahNoQuran}
                         </div>
-
-                        <div className="ayat-meta" style={{ fontSize: "14px", color: "#444", marginTop: "5px" }}>
-                            <span>
-                                <strong>Surah:</strong> {currentAyat.surahNameEn} ({currentAyat.surahNameAr})
-                            </span>
-                            <span> | <strong>Para:</strong> {currentAyat.juzNo}</span>
-                            <span> | <strong>Ayah in Surah:</strong> {currentAyat.ayahNoInSurah}</span>
+                        <div className="ayat-meta" >
+                            <strong>Surah:</strong> {currentAyat.surahNameEn} ({currentAyat.surahNameAr})
+                            {" | "}
+                            <strong>Para:</strong> {currentAyat.juzNo}
+                            {" | "}
+                            <strong>Ayah in Surah:</strong> {currentAyat.ayahNoInSurah}
                         </div>
+                    </div>
+
+                    <div style={{
+                        color: "black",
+                        fontSize: "32px",
+                        lineHeight: "2",
+                        textAlign: "right",
+                        direction: "rtl",
+                        fontFamily: "Arial, sans-serif"
+                    }}
+                        className="quran-text ayat-text">
+                        {currentAyat.text}
                     </div>
                 </div>
 
-                <div style={{
-                    color: "black",
-                    fontSize: "32px",
-                    lineHeight: "2",
-                    textAlign: "right",
-                    direction: "rtl",
-                    fontFamily: "Arial, sans-serif"
-                }}
-                    className="quran-text ayat-text">
-                    {currentAyat.text}
+                <div className="controls">
+                    {!audioBlob ? (
+                        <div className="recording-controls">
+                            <button
+                                style={{ color: "white" }}
+                                className="btn btn-skip"
+                                onClick={handleSkip}
+                                disabled={loading || saving}
+                            >
+                                ⏭ Skip to Next Unrecorded Ayat
+                            </button>
+                            {!isRecording ? (
+                                <button
+                                    style={{ color: "white" }}
+                                    className="btn btn-record"
+                                    onClick={startRecording}
+                                    disabled={loading || saving}
+                                >
+                                    🎤 Start Recording
+                                </button>
+                            ) : (
+                                <button
+                                    style={{ color: "white" }}
+                                    className="btn btn-stop"
+                                    onClick={stopRecording}
+                                    disabled={loading || saving}
+                                >
+                                    ⏹ Stop Recording
+                                </button>
+                            )}
+                            {isRecording && <div style={{ color: "white" }} className="recording-indicator">Recording...</div>}
+                        </div>
+                    ) : (
+                        <div className="playback-controls">
+                            <audio controls src={URL.createObjectURL(audioBlob)} />
+                            <div className="button-group">
+                                <button
+                                    style={{ color: "white" }}
+                                    className="btn btn-save"
+                                    onClick={saveRecording}
+                                    disabled={saving}
+                                >
+                                    {saving ? 'Saving...' : '💾 Save Recording'}
+                                </button>
+                                <button
+                                    style={{ color: "white" }}
+                                    className="btn btn-discard"
+                                    onClick={discardRecording}
+                                    disabled={saving}
+                                >
+                                    🗑️ Discard
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
-
-            {/* ✅ Dropdown added here */}
-            {/* <div style={{ marginTop: '20px' }}>
-                <SurahParaSelector />
-            </div> */}
-
-            <div className="controls">
-                {!audioBlob ? (
-                    <div className="recording-controls">
-                        <button
-                            style={{ color: "white" }}
-                            className="btn btn-skip"
-                            onClick={handleSkip}
-                            disabled={loading || saving}
-                        >
-                            ⏭ Skip to Next Unrecorded Ayat
-                        </button>
-                        {!isRecording ? (
-                            <button
-                                style={{ color: "white" }}
-                                className="btn btn-record"
-                                onClick={startRecording}
-                                disabled={loading || saving}
-                            >
-                                🎤 Start Recording
-                            </button>
-                        ) : (
-                            <button
-                                style={{ color: "white" }}
-                                className="btn btn-stop"
-                                onClick={stopRecording}
-                                disabled={loading || saving}
-                            >
-                                ⏹ Stop Recording
-                            </button>
-                        )}
-                        {isRecording && <div style={{ color: "white" }} className="recording-indicator">Recording...</div>}
-                    </div>
-                ) : (
-                    <div className="playback-controls">
-                        <audio controls src={URL.createObjectURL(audioBlob)} />
-                        <div className="button-group">
-                            <button
-                                style={{ color: "white" }}
-                                className="btn btn-save"
-                                onClick={saveRecording}
-                                disabled={saving}
-                            >
-                                {saving ? 'Saving...' : '💾 Save Recording'}
-                            </button>
-                            <button
-                                style={{ color: "white" }}
-                                className="btn btn-discard"
-                                onClick={discardRecording}
-                                disabled={saving}
-                            >
-                                🗑️ Discard
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </div>
-        </div>
         </div>
     );
 }
-
 
 export default Recorder;

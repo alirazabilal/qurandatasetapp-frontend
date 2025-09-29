@@ -621,10 +621,33 @@ body {
   font-size: 0.9rem;
   font-weight: bold;
 }
+.ayat-meta {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;       
+}
+.logged-in {
+  color: white;
+  font-size: 1rem; /* default (laptop/desktop) */
+}
+
+@media (max-width: 992px) {
+  .logged-in {
+    font-size: 2rem; /* mobile */
+  }
+}
+
 /* Responsive Ayat Card (Covers screens up to 992px) */
 @media (max-width: 992px) { 
   .ayat-number {
-    font-size: 1.7rem ;
+    font-size: 1.5rem ;
+    padding: 1.1rem 1.4rem; 
+  }
+  .ayat-meta {
+    font-size: 1.5rem ;
     padding: 1.1rem 1.4rem; 
   }
   .progress span{
@@ -653,6 +676,7 @@ body {
   font-weight: normal;
   font-style: normal;
 }
+
 
 .ayat-text {
   /* Excellent fluid typography for Arabic text */
