@@ -661,7 +661,7 @@ body {
   color: #333;
   text-align: right;
   direction: rtl;
-  font-family: 'indopak_font','Amiri Quran', 'Scheherazade New', serif !important;
+  font-family: 'Amiri Quran', 'Scheherazade New', serif !important;
   font-feature-settings: "liga", "clig", "kern";
 }
 
