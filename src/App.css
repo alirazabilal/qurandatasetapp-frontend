@@ -1,3 +1,6 @@
+/* Import proper Quranic fonts from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Scheherazade+New:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -655,7 +658,10 @@ body {
 }
 /* Arabic Fonts */
 .quran-text {
-  font-family: 'Scheherazade New', 'Noto Naskh Arabic', serif;
+  font-family: 'Amiri Quran', 'Scheherazade New', 'Noto Naskh Arabic', serif !important;
+  font-feature-settings: 'liga', 'calt', 'kern';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @font-face {
@@ -666,14 +672,12 @@ body {
 }
 
 .ayat-text {
-  /* Excellent fluid typography for Arabic text */
-  font-size: clamp(2.2rem, 7vw, 3.8rem); 
-  line-height: 1.8em;
-  color: #333;
-  text-align: right;
+  font-family: 'Amiri Quran', serif !important;
   direction: rtl;
-  font-family: 'Amiri Quran', 'Scheherazade New', serif !important;
-  font-feature-settings: "liga", "clig", "kern";
+  text-align: right;
+  color: #333;
+  font-size: clamp(2.2rem, 7vw, 3.8rem);
+  line-height: 1.8em;
 }
 
 @media (max-width: 992px) { 

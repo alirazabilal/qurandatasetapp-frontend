@@ -257,7 +257,10 @@ function Recorder() {
                         lineHeight: "2",
                         textAlign: "right",
                         direction: "rtl",
-                        fontFamily: "Arial, sans-serif"
+                        fontFamily: "'Amiri Quran', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', 'Arabic Typesetting', serif",
+                        fontFeatureSettings: "'liga', 'calt', 'kern'",
+                        WebkitFontSmoothing: "antialiased",
+                        MozOsxFontSmoothing: "grayscale"
                     }}
                         className="quran-text ayat-text">
                         {currentAyat.text}
