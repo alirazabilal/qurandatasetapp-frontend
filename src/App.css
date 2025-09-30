@@ -687,16 +687,12 @@ body {
 }
 
 .ayat-text {
-  /* Excellent fluid typography for Arabic text */
-  font-size: clamp(2.2rem, 7vw, 3.8rem); 
-  line-height: 1.8em;
-  color: #333;
-  text-align: right;
+  font-family: 'Amiri Quran', serif !important;
   direction: rtl;
-  font-family: 'Amiri Quran', 'Scheherazade New', 'Noto Naskh Arabic', serif !important;
-  font-feature-settings: 'liga', 'calt', 'kern';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  text-align: right;
+  color: #333;
+  font-size: clamp(2.2rem, 7vw, 3.8rem);
+  line-height: 1.8em;
 }
 
 
