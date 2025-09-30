@@ -644,22 +644,7 @@ body {
 
 
 /* Responsive Ayat Card (Covers screens up to 992px) */
-@media (max-width: 992px) { 
-  .ayat-number {
-    font-size: 1.7rem ;
-    padding: 1.1rem 1.4rem; 
-  }
-  .ayat-meta {
-    font-size: 1.5rem ;
-    padding: 1.1rem 1.4rem; 
-  }
-  .progress span{
-      font-size: 0.8rem;
-  }
-  .ayat-card {
-    padding: 1.5rem;
-  }
-}
+
 @media (max-width: 480px) {
   .ayat-card {
     padding: 1rem;
@@ -691,7 +676,26 @@ body {
   font-feature-settings: "liga", "clig", "kern";
 }
 
-
+@media (max-width: 992px) { 
+  .ayat-number {
+    font-size: 1.5rem ;
+    padding: 1.1rem 1.4rem; 
+  }
+  .ayat-meta {
+    font-size: 1.5rem ;
+    padding: 1.1rem 1.4rem; 
+  }
+  .progress span{
+      font-size: 0.8rem;
+  }
+  .ayat-card {
+    padding: 1.5rem;
+  }
+  .ayat-text{
+    font-family: 'Amiri Quran', 'Scheherazade New', serif !important;
+  font-feature-settings: "liga", "clig", "kern";
+  }
+}
 /* ====================
    7. Controls & Buttons 
    ==================== */
