@@ -729,6 +729,25 @@ body {
   align-items: center;
   gap: 1rem;
 }
+/* Default (desktop) */
+.recording-indicator,
+.limit-warning {
+  font-size: 1rem;
+}
+
+.btn-discard {
+  display: inline-block;
+  margin: 0 auto;
+}
+
+/* Mobile (max width 768px) */
+@media (max-width: 992px) {
+  .recording-indicator,
+  .limit-warning {
+    font-size: 2rem;
+    text-align: center;
+  }
+}
 
 /* Base button style (for both main app and auth buttons) */
 .btn, .btn-auth { 
@@ -823,6 +842,7 @@ body {
   width: 100%;
   max-width: 400px;
 }
+
 
 .button-group {
   display: flex;

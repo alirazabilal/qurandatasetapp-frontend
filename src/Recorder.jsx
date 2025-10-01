@@ -13,9 +13,12 @@ function Recorder() {
     const [recordedCount, setRecordedCount] = useState(0);
     const [totalAyats, setTotalAyats] = useState(0);
     const [userName, setUserName] = useState('');
+    const [recordingTime, setRecordingTime] = useState(0);
+    const [timeLimitExceeded, setTimeLimitExceeded] = useState(false);
     const navigate = useNavigate();
     const mediaRecorderRef = useRef(null);
     const chunksRef = useRef([]);
+    const recordingTimerRef = useRef(null);
 
     // Get user name from token
     useEffect(() => {
@@ -48,6 +51,7 @@ function Recorder() {
                     setRecordedCount(data.recordedCount);
                     setTotalAyats(data.totalAyats);
                     setAudioBlob(null);
+                    setTimeLimitExceeded(false);
                 } else {
                     setCurrentAyat(null);
                 }
@@ -78,6 +82,7 @@ function Recorder() {
                     setRecordedCount(data.recordedCount);
                     setTotalAyats(data.totalAyats);
                     setAudioBlob(null);
+                    setTimeLimitExceeded(false);
                 } else {
                     alert('No more unrecorded ayats available after this one');
                     setCurrentAyat(null);
@@ -98,6 +103,38 @@ function Recorder() {
         if (userName) fetchNextAyat();
     }, [userName]);
 
+    // Start recording timer
+    const startRecordingTimer = () => {
+        setRecordingTime(0);
+        setTimeLimitExceeded(false);
+        recordingTimerRef.current = setInterval(() => {
+            setRecordingTime(prevTime => {
+                const newTime = prevTime + 1;
+                // Auto-stop recording after 30 seconds
+                if (newTime >= 30) {
+                    stopRecording();
+                    setTimeLimitExceeded(true);
+                    return 30;
+                }
+                return newTime;
+            });
+        }, 1000);
+    };
+
+    // Stop recording timer
+    const stopRecordingTimer = () => {
+        if (recordingTimerRef.current) {
+            clearInterval(recordingTimerRef.current);
+            recordingTimerRef.current = null;
+        }
+        setRecordingTime(0);
+    };
+
+    // Format time for display
+    const formatTime = (seconds) => {
+        return `${seconds}s`;
+    };
+
     // Start recording
     const startRecording = async () => {
         try {
@@ -116,13 +153,16 @@ function Recorder() {
                 const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
                 setAudioBlob(blob);
                 stream.getTracks().forEach(track => track.stop());
+                stopRecordingTimer();
             };
 
             mediaRecorder.start();
             setIsRecording(true);
+            startRecordingTimer();
         } catch (error) {
             console.error('Error accessing microphone:', error);
             alert('Please allow microphone access to record');
+            stopRecordingTimer();
         }
     };
 
@@ -171,6 +211,7 @@ function Recorder() {
 
     const discardRecording = () => {
         setAudioBlob(null);
+        setTimeLimitExceeded(false);
     };
 
     // Handle Skip button click
@@ -188,6 +229,15 @@ function Recorder() {
         setUserName('');
         navigate('/login');
     };
+
+    // Cleanup timer on unmount
+    useEffect(() => {
+        return () => {
+            if (recordingTimerRef.current) {
+                clearInterval(recordingTimerRef.current);
+            }
+        };
+    }, []);
 
     if (!userName) {
         return <div className="container"><div className="loading">Authenticating...</div></div>;
@@ -231,7 +281,6 @@ function Recorder() {
                 </div>
 
                 <div className="ayat-card">
-                    {/* ✅ Ayah header styled in one line */}
                     <div className="ayat-header" style={{
                         display: "flex",
                         justifyContent: "space-between",
@@ -268,6 +317,14 @@ function Recorder() {
                 </div>
 
                 <div className="controls">
+                    <p style={{
+                        textAlign: "center",
+                        color: "#764ba2",     
+                        fontWeight: "500",
+                        margin: "1rem",
+                    }}>
+                        ⚠️ Note: Please keep recordings under 30 seconds
+                    </p>
                     {!audioBlob ? (
                         <div className="recording-controls">
                             <button
@@ -297,28 +354,52 @@ function Recorder() {
                                     ⏹ Stop Recording
                                 </button>
                             )}
-                            {isRecording && <div style={{ color: "white" }} className="recording-indicator">Recording...</div>}
+                            {isRecording && (
+                                <div style={{ color: "blue" }} className="recording-indicator">
+                                    Recording... {formatTime(recordingTime)}
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="playback-controls">
                             <audio controls src={URL.createObjectURL(audioBlob)} />
                             <div className="button-group">
-                                <button
-                                    style={{ color: "white" }}
-                                    className="btn btn-save"
-                                    onClick={saveRecording}
-                                    disabled={saving}
-                                >
-                                    {saving ? 'Saving...' : '💾 Save Recording'}
-                                </button>
-                                <button
-                                    style={{ color: "white" }}
-                                    className="btn btn-discard"
-                                    onClick={discardRecording}
-                                    disabled={saving}
-                                >
-                                    🗑️ Discard
-                                </button>
+                                {timeLimitExceeded ? (
+                                    // Only show Discard button when time limit is exceeded
+                                    <div style={{ textAlign: "center", width: "100%" }}>
+                                        <p className="limit-warning" style={{ color: "red", marginBottom: "1rem" }}>
+                                            ⚠️ Recording exceeded 30 second limit
+                                        </p>
+                                        <button
+                                            style={{ color: "white" }}
+                                            className="btn btn-discard"
+                                            onClick={discardRecording}
+                                            disabled={saving}
+                                        >
+                                            🗑️ Discard Recording
+                                        </button>
+                                        </div>
+                                ) : (
+                                    // Show both Save and Discard buttons for normal recordings
+                                    <>
+                                        <button
+                                            style={{ color: "white",width:"auto" }}
+                                            className="btn btn-save"
+                                            onClick={saveRecording}
+                                            disabled={saving}
+                                        >
+                                            {saving ? 'Saving...' : '💾 Save Recording'}
+                                        </button>
+                                        <button
+                                            style={{ color: "white" }}
+                                            className="btn btn-discard"
+                                            onClick={discardRecording}
+                                            disabled={saving}
+                                        >
+                                            🗑️ Discard
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     )}
