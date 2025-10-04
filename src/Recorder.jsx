@@ -364,14 +364,10 @@ function Recorder() {
                     <div
                         className="quran-text"
                         style={{
-                            fontSize: scriptStyle === "indopak" ? "38px" : "36px",
-                            lineHeight: scriptStyle === "indopak" ? "2.7" : "2.5",
-                            fontFamily:
-                                scriptStyle === "uthmani"
-                                    ? "'Amiri Quran', 'Scheherazade New', serif"
-                                    : "'Scheherazade New', serif", // ✅ fix diacritics for Indopak
-                            letterSpacing: scriptStyle === "indopak" ? "0.3px" : "0px",
-                            fontWeight: scriptStyle === "indopak" ? "700" : "400",
+                            fontSize: "36px",
+                            lineHeight: "2.5",
+                            fontFamily: "'Amiri Quran', 'Scheherazade New', serif", // 🟢 same font for both
+                            fontWeight: "400",
                             direction: "rtl",
                             textAlign: "right",
                         }}
@@ -380,6 +376,7 @@ function Recorder() {
                             ? currentAyat.uthmani_script || currentAyat.text
                             : currentAyat.indopak_script || currentAyat.text}
                     </div>
+
 
                 </div>
 
