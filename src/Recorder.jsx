@@ -304,17 +304,19 @@ function Recorder() {
                     <div
                         style={{
                             display: "flex",
+                            flexWrap: "wrap", // ✅ ensures they wrap properly on small screens
                             justifyContent: "flex-end",
                             alignItems: "center",
                             gap: "10px",
-                            marginBottom: "12px",
+                            marginBottom: "14px",
                         }}
-                    >   
+                    >
                         <span
                             style={{
-                                fontWeight: "bold",
+                                fontWeight: "600",
                                 color: "#333",
                                 fontSize: "18px",
+                                marginRight: "6px",
                             }}
                         >
                             Script Style:
@@ -326,12 +328,13 @@ function Recorder() {
                                 backgroundColor: scriptStyle === "uthmani" ? "#28a745" : "#e0e0e0",
                                 color: scriptStyle === "uthmani" ? "white" : "black",
                                 border: "none",
-                                padding: "8px 16px",
-                                borderRadius: "8px",
+                                padding: "10px 20px", // ✅ increased padding for better touch feel
+                                borderRadius: "10px", // ✅ slightly rounder for mobile comfort
                                 cursor: "pointer",
                                 fontWeight: "bold",
+                                fontSize: "16px", // ✅ larger readable text
                                 transition: "0.2s",
-                                minWidth: "100px",
+                                minWidth: "110px", // ✅ wider for mobile
                             }}
                         >
                             Uthmani
@@ -343,12 +346,13 @@ function Recorder() {
                                 backgroundColor: scriptStyle === "indopak" ? "#28a745" : "#e0e0e0",
                                 color: scriptStyle === "indopak" ? "white" : "black",
                                 border: "none",
-                                padding: "8px 16px",
-                                borderRadius: "8px",
+                                padding: "10px 20px",
+                                borderRadius: "10px",
                                 cursor: "pointer",
                                 fontWeight: "bold",
+                                fontSize: "16px",
                                 transition: "0.2s",
-                                minWidth: "100px",
+                                minWidth: "110px",
                             }}
                         >
                             Indopak
@@ -356,17 +360,28 @@ function Recorder() {
                     </div>
 
 
+
                     <div
                         className="quran-text"
                         style={{
                             fontSize: scriptStyle === "indopak" ? "38px" : "36px",
                             lineHeight: scriptStyle === "indopak" ? "2.7" : "2.5",
+                            fontFamily:
+                                scriptStyle === "uthmani"
+                                    ? "'Amiri Quran', 'Scheherazade New', serif"
+                                    : "'Noto Naskh Arabic', 'Scheherazade New', serif",
+                            letterSpacing: scriptStyle === "indopak" ? "0.3px" : "0px",
+                            fontWeight: scriptStyle === "indopak" ? "700" : "400", // 🟢 bold only for Indopak
+                            direction: "rtl",
+                            textAlign: "right",
                         }}
                     >
                         {scriptStyle === "uthmani"
                             ? currentAyat.uthmani_script || currentAyat.text
                             : currentAyat.indopak_script || currentAyat.text}
                     </div>
+
+
 
                 </div>
 

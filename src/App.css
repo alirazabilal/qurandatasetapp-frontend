@@ -30,6 +30,17 @@
   font-variant-ligatures: contextual;
   letter-spacing: 0.5px;
 }
+@media (max-width: 600px) {
+  .quran-text {
+    font-size: 32px;
+    line-height: 2.8;
+  }
+
+  button {
+    font-size: 15px !important;
+    padding: 12px 22px !important;
+  }
+}
 
 
 /* Optional: Quran specific fonts - Download locally if needed */
