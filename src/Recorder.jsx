@@ -6,6 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 
 function Recorder() {
     const [currentAyat, setCurrentAyat] = useState(null);
+    const [scriptStyle, setScriptStyle] = useState("uthmani");
     const [isRecording, setIsRecording] = useState(false);
     const [audioBlob, setAudioBlob] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -261,6 +262,7 @@ function Recorder() {
             </div>
         );
     }
+    console.log("🧩 Current Ayat:", currentAyat);
 
     return (
         <div className="recorder-page">
@@ -299,27 +301,79 @@ function Recorder() {
                             <strong>Ayah in Surah:</strong> {currentAyat.ayahNoInSurah}
                         </div>
                     </div>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "12px",
+                        }}
+                    >   
+                        <span
+                            style={{
+                                fontWeight: "bold",
+                                color: "#333",
+                                fontSize: "18px",
+                            }}
+                        >
+                            Script Style:
+                        </span>
 
-                    <div style={{
-                        color: "black",
-                        fontSize: "32px",
-                        lineHeight: "2",
-                        textAlign: "right",
-                        direction: "rtl",
-                        fontFamily: "'Amiri Quran', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', 'Arabic Typesetting', serif",
-                        fontFeatureSettings: "'liga', 'calt', 'kern'",
-                        WebkitFontSmoothing: "antialiased",
-                        MozOsxFontSmoothing: "grayscale"
-                    }}
-                        className="quran-text ayat-text">
-                        {currentAyat.text}
+                        <button
+                            onClick={() => setScriptStyle("uthmani")}
+                            style={{
+                                backgroundColor: scriptStyle === "uthmani" ? "#28a745" : "#e0e0e0",
+                                color: scriptStyle === "uthmani" ? "white" : "black",
+                                border: "none",
+                                padding: "8px 16px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "bold",
+                                transition: "0.2s",
+                                minWidth: "100px",
+                            }}
+                        >
+                            Uthmani
+                        </button>
+
+                        <button
+                            onClick={() => setScriptStyle("indopak")}
+                            style={{
+                                backgroundColor: scriptStyle === "indopak" ? "#28a745" : "#e0e0e0",
+                                color: scriptStyle === "indopak" ? "white" : "black",
+                                border: "none",
+                                padding: "8px 16px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "bold",
+                                transition: "0.2s",
+                                minWidth: "100px",
+                            }}
+                        >
+                            Indopak
+                        </button>
                     </div>
+
+
+                    <div
+                        className="quran-text"
+                        style={{
+                            fontSize: scriptStyle === "indopak" ? "38px" : "36px",
+                            lineHeight: scriptStyle === "indopak" ? "2.7" : "2.5",
+                        }}
+                    >
+                        {scriptStyle === "uthmani"
+                            ? currentAyat.uthmani_script || currentAyat.text
+                            : currentAyat.indopak_script || currentAyat.text}
+                    </div>
+
                 </div>
 
                 <div className="controls">
                     <p style={{
                         textAlign: "center",
-                        color: "#764ba2",     
+                        color: "#764ba2",
                         fontWeight: "500",
                         margin: "1rem",
                     }}>
@@ -378,12 +432,12 @@ function Recorder() {
                                         >
                                             🗑️ Discard Recording
                                         </button>
-                                        </div>
+                                    </div>
                                 ) : (
                                     // Show both Save and Discard buttons for normal recordings
                                     <>
                                         <button
-                                            style={{ color: "white",width:"auto" }}
+                                            style={{ color: "white", width: "auto" }}
                                             className="btn btn-save"
                                             onClick={saveRecording}
                                             disabled={saving}
