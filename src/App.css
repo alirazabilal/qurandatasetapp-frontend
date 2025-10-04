@@ -23,23 +23,12 @@
   -moz-osx-font-smoothing: grayscale;
 
   /* 🟢 Prevent word splitting and clipping */
-  word-break: keep-all;
+  /* word-break: keep-all;
   white-space: normal;
   overflow-wrap: break-word;
   text-rendering: optimizeLegibility;
   font-variant-ligatures: contextual;
-  letter-spacing: 0.5px;
-}
-@media (max-width: 600px) {
-  .quran-text {
-    font-size: 32px;
-    line-height: 2.8;
-  }
-
-  button {
-    font-size: 15px !important;
-    padding: 12px 22px !important;
-  }
+  letter-spacing: 0.5px; */
 }
 
 

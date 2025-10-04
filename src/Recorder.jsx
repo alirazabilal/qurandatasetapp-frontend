@@ -369,9 +369,9 @@ function Recorder() {
                             fontFamily:
                                 scriptStyle === "uthmani"
                                     ? "'Amiri Quran', 'Scheherazade New', serif"
-                                    : "'Noto Naskh Arabic', 'Scheherazade New', serif",
+                                    : "'Scheherazade New', serif", // ✅ fix diacritics for Indopak
                             letterSpacing: scriptStyle === "indopak" ? "0.3px" : "0px",
-                            fontWeight: scriptStyle === "indopak" ? "700" : "400", // 🟢 bold only for Indopak
+                            fontWeight: scriptStyle === "indopak" ? "700" : "400",
                             direction: "rtl",
                             textAlign: "right",
                         }}
@@ -380,8 +380,6 @@ function Recorder() {
                             ? currentAyat.uthmani_script || currentAyat.text
                             : currentAyat.indopak_script || currentAyat.text}
                     </div>
-
-
 
                 </div>
 
