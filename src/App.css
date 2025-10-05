@@ -1,6 +1,6 @@
 /* Import proper Quranic fonts from Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Scheherazade+New:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap'); 
-
+@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
 
 /* App.css - Replace top imports with these */
 
@@ -23,12 +23,12 @@
   -moz-osx-font-smoothing: grayscale;
 
   /* 🟢 Prevent word splitting and clipping */
-  /* word-break: keep-all;
+  word-break: keep-all;
   white-space: normal;
   overflow-wrap: break-word;
   text-rendering: optimizeLegibility;
   font-variant-ligatures: contextual;
-  letter-spacing: 0.5px; */
+  letter-spacing: 0.5px;
 }
 
 

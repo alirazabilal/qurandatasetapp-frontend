@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './App.css';
@@ -263,7 +262,7 @@ function Recorder() {
             </div>
         );
     }
-    console.log("🧩 Current Ayat:", currentAyat);
+    { console.log("🧩 Current Ayat:", currentAyat) }
 
     return (
         <div className="recorder-page">
@@ -305,19 +304,17 @@ function Recorder() {
                     <div
                         style={{
                             display: "flex",
-                            flexWrap: "wrap", // ✅ ensures they wrap properly on small screens
                             justifyContent: "flex-end",
                             alignItems: "center",
                             gap: "10px",
-                            marginBottom: "14px",
+                            marginBottom: "12px",
                         }}
                     >
                         <span
                             style={{
-                                fontWeight: "600",
+                                fontWeight: "bold",
                                 color: "#333",
                                 fontSize: "18px",
-                                marginRight: "6px",
                             }}
                         >
                             Script Style:
@@ -329,13 +326,12 @@ function Recorder() {
                                 backgroundColor: scriptStyle === "uthmani" ? "#28a745" : "#e0e0e0",
                                 color: scriptStyle === "uthmani" ? "white" : "black",
                                 border: "none",
-                                padding: "10px 20px", // ✅ increased padding for better touch feel
-                                borderRadius: "10px", // ✅ slightly rounder for mobile comfort
+                                padding: "8px 16px",
+                                borderRadius: "8px",
                                 cursor: "pointer",
                                 fontWeight: "bold",
-                                fontSize: "16px", // ✅ larger readable text
                                 transition: "0.2s",
-                                minWidth: "110px", // ✅ wider for mobile
+                                minWidth: "100px",
                             }}
                         >
                             Uthmani
@@ -347,40 +343,42 @@ function Recorder() {
                                 backgroundColor: scriptStyle === "indopak" ? "#28a745" : "#e0e0e0",
                                 color: scriptStyle === "indopak" ? "white" : "black",
                                 border: "none",
-                                padding: "10px 20px",
-                                borderRadius: "10px",
+                                padding: "8px 16px",
+                                borderRadius: "8px",
                                 cursor: "pointer",
                                 fontWeight: "bold",
-                                fontSize: "16px",
                                 transition: "0.2s",
-                                minWidth: "110px",
+                                minWidth: "100px",
                             }}
                         >
                             Indopak
                         </button>
                     </div>
 
-
-
                     <div
                         className="quran-text"
                         style={{
-                            fontSize: scriptStyle === "indopak" ? "38px" : "36px",
-                            lineHeight: scriptStyle === "indopak" ? "2.7" : "2.5",
+                            fontSize: scriptStyle === "indopak" ? "40px" : "36px",
+                            lineHeight: scriptStyle === "indopak" ? "2.2" : "2.5",
                             fontFamily:
                                 scriptStyle === "uthmani"
                                     ? "'Amiri Quran', 'Scheherazade New', serif"
-                                    : "'Scheherazade New', serif", // ✅ fix diacritics for Indopak
-                            letterSpacing: scriptStyle === "indopak" ? "0.3px" : "0px",
-                            fontWeight: scriptStyle === "indopak" ? "700" : "400",
+                                    : "'KFGQPC HAFS Uthmanic Script', 'Al Qalam Quran', 'Scheherazade New', serif",
+                            letterSpacing: scriptStyle === "indopak" ? "0.5px" : "0px",
+                            fontWeight: scriptStyle === "indopak" ? "600" : "400",
+                            wordSpacing: scriptStyle === "indopak" ? "3px" : "normal",
                             direction: "rtl",
                             textAlign: "right",
+                            padding: "15px 30px",
                         }}
                     >
                         {scriptStyle === "uthmani"
                             ? currentAyat.uthmani_script || currentAyat.text
                             : currentAyat.indopak_script || currentAyat.text}
                     </div>
+
+
+
 
                 </div>
 
