@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 
 function Recorder() {
     const [currentAyat, setCurrentAyat] = useState(null);
-    const [scriptStyle, setScriptStyle] = useState("uthmani");
+    const [scriptStyle, setScriptStyle] = useState("indopak");
     const [isRecording, setIsRecording] = useState(false);
     const [audioBlob, setAudioBlob] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -358,25 +358,23 @@ function Recorder() {
                     <div
                         className="quran-text"
                         style={{
-                            fontSize: scriptStyle === "indopak" ? "40px" : "36px",
-                            lineHeight: scriptStyle === "indopak" ? "2.2" : "2.5",
                             fontFamily:
                                 scriptStyle === "uthmani"
                                     ? "'Amiri Quran', 'Scheherazade New', serif"
-                                    : "'KFGQPC HAFS Uthmanic Script', 'Al Qalam Quran', 'Scheherazade New', serif",
-                            letterSpacing: scriptStyle === "indopak" ? "0.5px" : "0px",
-                            fontWeight: scriptStyle === "indopak" ? "600" : "400",
-                            wordSpacing: scriptStyle === "indopak" ? "3px" : "normal",
+                                    : "'NooreHiraVolt', serif", // ✅ Only for Indopak
+                            fontSize: scriptStyle === "indopak" ? "38px" : "36px",
+                            lineHeight: scriptStyle === "indopak" ? "2.7" : "2.5",
+                            fontWeight: "normal",
                             direction: "rtl",
                             textAlign: "right",
-                            padding: "15px 30px",
+                            WebkitFontSmoothing: "antialiased",
+                            MozOsxFontSmoothing: "grayscale",
                         }}
                     >
                         {scriptStyle === "uthmani"
                             ? currentAyat.uthmani_script || currentAyat.text
                             : currentAyat.indopak_script || currentAyat.text}
                     </div>
-
 
 
 
