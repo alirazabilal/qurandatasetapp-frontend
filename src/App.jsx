@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Home from './Home';
 import Recorder from './Recorder';
-//import SurahParaSelector from './SurahParaSelector';
+import Memorization from './Memorization';
 import Admin from './Admin';
 import AdminLogin from './AdminLogin';
 import Register from './Register';
@@ -29,7 +29,6 @@ const Navbar = () => {
   };
 
   return (
-    
     <nav className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`}>
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
@@ -51,6 +50,13 @@ const Navbar = () => {
             onClick={() => setIsMenuOpen(false)}
           >
             Recorder
+          </Link>
+          <Link 
+            to="/memorization" 
+            className={`navbar-link ${location.pathname === '/memorization' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Memorization
           </Link>
           <Link 
             to="/admin" 
@@ -94,6 +100,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/recorder" element={<Recorder />} />
+        <Route path="/memorization" element={<Memorization />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin-login" element={<AdminLogin onLogin={() => window.location.href = '/admin'} />} />
       </Routes>
