@@ -20,7 +20,7 @@ function Login() {
     try {
       // Add timeout to fetch request
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
 
       const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/users/login', {
         method: 'POST',
