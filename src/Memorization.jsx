@@ -250,7 +250,7 @@ function Memorization() {
         return (
             <div className="container">
                 <div className="header">
-                    <h1>Quran Memorization - Para 30</h1>
+                    <h1>Quran Pak- Para 30th Recording System</h1>
                     <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
                 </div>
                 <div className="complete-message">
@@ -280,7 +280,7 @@ function Memorization() {
         <div className="recorder-page">
             <div className="container">
                 <div className="header">
-                    <h1 style={{ color: "white" }}>Quran Memorization - Para 30</h1>
+                    <h1 style={{ color: "white" }}>Quran Pak- Para 30th Recording System</h1>
                     <div>
                         <span className="logged-in">Logged in as: {userName}</span>
                         <button className="btn btn-logout" onClick={handleLogout}>Logout</button>

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import Home from './Home';
 import Recorder from './Recorder';
 import Memorization from './Memorization';
+import BulkRecording from './BulkRecording';
 import Admin from './Admin';
 import AdminLogin from './AdminLogin';
 import Register from './Register';
@@ -56,7 +57,14 @@ const Navbar = () => {
             className={`navbar-link ${location.pathname === '/memorization' ? 'active' : ''}`}
             onClick={() => setIsMenuOpen(false)}
           >
-            Memorization
+            30th Para Recorder
+          </Link>
+          <Link 
+            to="/bulk-recording" 
+            className={`navbar-link ${location.pathname === '/bulk-recording' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            30th Para Bulk Recorder
           </Link>
           <Link 
             to="/admin" 
@@ -101,6 +109,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/recorder" element={<Recorder />} />
         <Route path="/memorization" element={<Memorization />} />
+        <Route path="/bulk-recording" element={<BulkRecording />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin-login" element={<AdminLogin onLogin={() => window.location.href = '/admin'} />} />
       </Routes>

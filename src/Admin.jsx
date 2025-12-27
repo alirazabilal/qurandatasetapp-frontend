@@ -430,7 +430,7 @@ function Admin() {
             transition: '0.3s'
           }}
         >
-          🎯 Memorization (Para 30) - {memorizationRecordings.length} recordings
+          🎯 Recordings (Para 30) - {memorizationRecordings.length} recordings
         </button>
       </div>
 
@@ -488,7 +488,7 @@ function Admin() {
 
           <div style={{ marginBottom: '20px', padding: '15px', background: '#f0f0f0', borderRadius: '8px' }}>
             <h3 style={{ margin: '0 0 10px 0', color: '#667eea' }}>
-              Para 30 Memorization Recordings
+              Para 30 Recordings Indiuidaually Store for all Users
             </h3>
             <p style={{ margin: 0, color: '#666' }}>
               Total Recordings: <strong>{memorizationRecordings.length}</strong>
