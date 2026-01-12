@@ -325,13 +325,32 @@ function Admin() {
     document.body.removeChild(link);
   }, []);
 
-  const downloadMemorizationCSV = useCallback(() => {
-    const link = document.createElement("a");
-    link.href = `https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization/export-csv`;
-    link.setAttribute("download", "memorization_para30_recordings.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const downloadMemorizationCSV = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      
+      const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization/export-csv', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        alert('Failed to download CSV. Please try again.');
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'memorization_para30_recordings.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Error downloading CSV. Please try again.');
+    }
   }, []);
 
   const tableRows = useMemo(() => 
@@ -430,7 +449,7 @@ function Admin() {
             transition: '0.3s'
           }}
         >
-          🎯 Recordings (Para 30) - {memorizationRecordings.length} recordings
+          🎯 Memorization (Para 30) - {memorizationRecordings.length} recordings
         </button>
       </div>
 
@@ -488,7 +507,7 @@ function Admin() {
 
           <div style={{ marginBottom: '20px', padding: '15px', background: '#f0f0f0', borderRadius: '8px' }}>
             <h3 style={{ margin: '0 0 10px 0', color: '#667eea' }}>
-              Para 30 Recordings Indiuidaually Store for all Users
+              Para 30 Memorization Recordings
             </h3>
             <p style={{ margin: 0, color: '#666' }}>
               Total Recordings: <strong>{memorizationRecordings.length}</strong>
