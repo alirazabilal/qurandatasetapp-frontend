@@ -5,6 +5,8 @@ import './App.css';
 
 function BulkRecording() {
     const [ayatsGroup, setAyatsGroup] = useState([]);
+    const [currentSurahs, setCurrentSurahs] = useState([]);
+    const [groupType, setGroupType] = useState('');
     const [scriptStyle, setScriptStyle] = useState("indopak");
     const [recordings, setRecordings] = useState({}); // {ayatIndex: audioBlob}
     const [recordingStates, setRecordingStates] = useState({}); // {ayatIndex: isRecording}
@@ -15,8 +17,6 @@ function BulkRecording() {
     const mediaRecordersRef = useRef({});
     const chunksRef = useRef({});
     const navigate = useNavigate();
-
-    const AYATS_PER_PAGE = 7; // Show 7 ayats at once
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -33,12 +33,12 @@ function BulkRecording() {
         }
     }, [navigate]);
 
-    // Fetch next group of unrecorded ayats
+    // Fetch next group of unrecorded ayats (Surah-wise)
     const fetchNextAyatsGroup = async () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/bulk-recording/next?limit=${AYATS_PER_PAGE}`, {
+            const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/bulk-recording/next`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await response.json();
@@ -46,6 +46,8 @@ function BulkRecording() {
             if (response.ok) {
                 if (data.ayats && data.ayats.length > 0) {
                     setAyatsGroup(data.ayats);
+                    setCurrentSurahs(data.currentSurahs || []);
+                    setGroupType(data.groupType || '');
                     setUserProgress({
                         recorded: data.userRecorded,
                         total: data.totalAyats
@@ -207,7 +209,7 @@ function BulkRecording() {
         return (
             <div className="container">
                 <div className="header">
-                    <h1>Bulk Recording System - Para 30</h1>
+                    <h1>Bulk Recording - Para 30</h1>
                     <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
                 </div>
                 <div className="complete-message">
@@ -220,11 +222,33 @@ function BulkRecording() {
 
     const recordedCount = Object.keys(recordings).length;
 
+    // Get Surah names for display
+    const getSurahNames = () => {
+        if (ayatsGroup.length === 0) return '';
+        
+        if (currentSurahs.length === 1) {
+            // Single surah
+            const firstAyat = ayatsGroup[0];
+            return `${firstAyat.surahNameEn} (${firstAyat.surahNameAr})`;
+        } else if (currentSurahs.length === 2) {
+            // Pair of surahs
+            const surah1 = ayatsGroup.find(a => a.surahNo === currentSurahs[0]);
+            const surah2 = ayatsGroup.find(a => a.surahNo === currentSurahs[1]);
+            return `${surah1?.surahNameEn} & ${surah2?.surahNameEn}`;
+        } else if (currentSurahs.length === 5) {
+            // 5 surahs at a time
+            return `Surahs ${currentSurahs[0]}-${currentSurahs[4]} (5 Surahs)`;
+        } else {
+            // Fallback for any other grouping
+            return `${currentSurahs.length} Surahs (${currentSurahs[0]}-${currentSurahs[currentSurahs.length - 1]})`;
+        }
+    };
+
     return (
         <div className="recorder-page">
             <div className="container">
                 <div className="header">
-                    <h1 style={{ color: "white" }}>Bulk Recording System - Para 30</h1>
+                    <h1 style={{ color: "white" }}>Bulk Recording - Para 30</h1>
                     <div>
                         <span className="logged-in">Logged in as: {userName}</span>
                         <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
@@ -238,8 +262,11 @@ function BulkRecording() {
                     <div className="progress-bar">
                         <div className="progress-fill" style={{ width: `${(userProgress.recorded / userProgress.total) * 100}%` }}></div>
                     </div>
-                    <p style={{ color: "white", marginTop: '10px' }}>
-                        📝 Recording {recordedCount} of {ayatsGroup.length} ayats on this page
+                    <p style={{ color: "white", marginTop: '10px', fontSize: '16px', fontWeight: 'bold' }}>
+                        📖 Current Group: {getSurahNames()}
+                    </p>
+                    <p style={{ color: "white", marginTop: '5px' }}>
+                        📝 Recording {recordedCount} of {ayatsGroup.length} ayats in this group
                     </p>
                 </div>
 

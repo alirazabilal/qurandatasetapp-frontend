@@ -48,7 +48,7 @@ function Login() {
       
       if (result.token) {
         localStorage.setItem('token', result.token);
-        navigate('/recorder');
+        navigate('/bulk-recording');
       } else {
         setError(result.error || 'Login failed');
       }
