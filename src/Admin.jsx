@@ -1,72 +1,97 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import "./Admin.css"
 
-const AyatRow = React.memo(({ ayat, index, onDelete }) => {
+const AyatRow = React.memo(({ ayat, index, onDelete, onVerify }) => {
   const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this recording?")) {
-      onDelete(ayat.index);
-    }
+    onDelete(ayat.index);
+  };
+
+  const handleVerify = () => {
+    onVerify(ayat.index);
   };
 
   return (
     <tr key={index}>
-      <td style={{ color: "black" }} data-label="#">
+      <td style={{ color: "black", fontSize: "13px", padding: "8px 5px" }} data-label="#">
         {index + 1}
       </td>
-      <td className="ayat-text2" style={{ color: "black", textAlign: "right" }} data-label="Ayat Text">
-        {ayat.text}
+      <td className="ayat-text2" style={{ color: "black", textAlign: "right", fontSize: "16px", maxWidth: "200px", padding: "8px 5px" }} data-label="Ayat Text">
+        {ayat.text?.substring(0, 40)}...
       </td>
-      <td style={{ color: "black" }} data-label="Status">
-        {ayat.isRecorded ? "✔ Recorded" : "❌ Not Recorded"}
+      <td style={{ color: "black", fontSize: "12px", padding: "8px 5px" }} data-label="Status">
+        {ayat.isRecorded ? "✔" : "❌"}
       </td>
-      <td style={{ color: "black" }} data-label="Recording">
+      <td style={{ color: "black", padding: "8px 5px" }} data-label="Recording">
         {ayat.audioUrl ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <audio controls src={ayat.audioUrl} preload="none" />
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <audio controls src={ayat.audioUrl} preload="none" style={{ width: "180px", height: "30px" }} />
             <a
               href={ayat.audioUrl}
               download={`ayat_${index + 1}_${ayat.recorderName || "unknown"}.webm`}
               style={{
                 background: "#2563eb",
                 color: "white",
-                padding: "5px 10px",
-                borderRadius: "6px",
+                padding: "4px 8px",
+                borderRadius: "4px",
                 textDecoration: "none",
-                fontSize: "0.8rem",
+                fontSize: "11px",
               }}
             >
-              ⬇ Download
+              ⬇
             </a>
           </div>
         ) : (
           "-"
         )}
       </td>
-      <td style={{ color: "black" }} data-label="Recording Name">
+      <td style={{ color: "black", fontSize: "11px", maxWidth: "150px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", padding: "8px 5px" }} data-label="Recording Name">
         {ayat.audioPath || "-"}
       </td>
-      <td style={{ color: "black" }} data-label="Recorded At">
-        {ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleString() : "-"}
+      <td style={{ color: "black", fontSize: "11px", padding: "8px 5px" }} data-label="Recorded At">
+        {ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleDateString() : "-"}
       </td>
-      <td style={{ color: "black" }} data-label="Recorder Name">
+      <td style={{ color: "black", fontSize: "13px", padding: "8px 5px" }} data-label="Recorder">
         {ayat.recorderName || "-"}
       </td>
-      <td style={{ color: "black" }} data-label="Gender">
+      <td style={{ color: "black", fontSize: "12px", padding: "8px 5px" }} data-label="Gender">
         {ayat.recorderGender || "-"}
       </td>
-      <td style={{ color: "black" }} data-label="Action">
+      <td style={{ color: "black", padding: "8px 5px" }} data-label="Verified">
+        {ayat.isRecorded ? (
+          <button
+            onClick={handleVerify}
+            style={{
+              background: ayat.isVerified ? "#28a745" : "#dc3545",
+              color: "white",
+              border: "none",
+              padding: "5px 8px",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "bold"
+            }}
+          >
+            {ayat.isVerified ? "✓" : "✗"}
+          </button>
+        ) : (
+          "-"
+        )}
+      </td>
+      <td style={{ color: "black", padding: "8px 5px" }} data-label="Action">
         {ayat.isRecorded ? (
           <button
             style={{
               color: "white",
               background: "red",
-              padding: "5px 10px",
+              padding: "5px 8px",
               border: "none",
               borderRadius: "4px",
+              fontSize: "12px",
+              cursor: "pointer"
             }}
             onClick={handleDelete}
           >
-            Delete
+            Del
           </button>
         ) : (
           "-"
@@ -76,12 +101,13 @@ const AyatRow = React.memo(({ ayat, index, onDelete }) => {
   );
 });
 
-// NEW: Memorization Row Component
-const MemorizationRow = React.memo(({ recording, index, onDelete }) => {
+const MemorizationRow = React.memo(({ recording, index, onDelete, onVerify }) => {
   const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this memorization recording?")) {
-      onDelete(recording._id);
-    }
+    onDelete(recording._id);
+  };
+
+  const handleVerify = () => {
+    onVerify(recording._id);
   };
 
   const timestamp = new Date(recording.recordedAt).getTime();
@@ -89,62 +115,81 @@ const MemorizationRow = React.memo(({ recording, index, onDelete }) => {
 
   return (
     <tr key={recording._id}>
-      <td style={{ color: "black" }} data-label="#">
+      <td style={{ color: "black", fontSize: "13px", padding: "8px 5px" }} data-label="#">
         {index + 1}
       </td>
-      <td style={{ color: "black" }} data-label="Ayat Number">
+      <td style={{ color: "black", fontSize: "13px", padding: "8px 5px" }} data-label="Ayat #">
         {recording.ayatIndex + 1}
       </td>
-      <td className="ayat-text2" style={{ color: "black", textAlign: "right" }} data-label="Ayat Text">
-        {recording.ayatText}
+      <td className="ayat-text2" style={{ color: "black", textAlign: "right", fontSize: "16px", maxWidth: "180px", padding: "8px 5px" }} data-label="Ayat Text">
+        {recording.ayatText?.substring(0, 30)}...
       </td>
-      <td style={{ color: "black" }} data-label="Recorder Name">
+      <td style={{ color: "black", fontSize: "13px", padding: "8px 5px" }} data-label="Recorder">
         {recording.recorderName}
       </td>
-      <td style={{ color: "black" }} data-label="Gender">
+      <td style={{ color: "black", fontSize: "12px", padding: "8px 5px" }} data-label="Gender">
         {recording.recorderGender}
       </td>
-      <td style={{ color: "black" }} data-label="Recording">
+      <td style={{ color: "black", padding: "8px 5px" }} data-label="Recording">
         {recording.audioUrl ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <audio controls src={recording.audioUrl} preload="none" />
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <audio controls src={recording.audioUrl} preload="none" style={{ width: "180px", height: "30px" }} />
             <a
               href={recording.audioUrl}
               download={uniqueFilename}
               style={{
                 background: "#2563eb",
                 color: "white",
-                padding: "5px 10px",
-                borderRadius: "6px",
+                padding: "4px 8px",
+                borderRadius: "4px",
                 textDecoration: "none",
-                fontSize: "0.8rem",
+                fontSize: "11px",
               }}
             >
-              ⬇ Download
+              ⬇
             </a>
           </div>
         ) : (
           "-"
         )}
       </td>
-      <td style={{ color: "black" }} data-label="Unique Filename">
+      <td style={{ color: "black", fontSize: "10px", maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", padding: "8px 5px" }} data-label="Filename">
         {uniqueFilename}
       </td>
-      <td style={{ color: "black" }} data-label="Recorded At">
-        {new Date(recording.recordedAt).toLocaleString()}
+      <td style={{ color: "black", fontSize: "11px", padding: "8px 5px" }} data-label="Date">
+        {new Date(recording.recordedAt).toLocaleDateString()}
       </td>
-      <td style={{ color: "black" }} data-label="Action">
+      <td style={{ color: "black", padding: "8px 5px" }} data-label="Verified">
+        <button
+          onClick={handleVerify}
+          style={{
+            background: recording.isVerified ? "#28a745" : "#dc3545",
+            color: "white",
+            border: "none",
+            padding: "5px 8px",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "12px",
+            fontWeight: "bold"
+          }}
+        >
+          {recording.isVerified ? "✓" : "✗"}
+        </button>
+      </td>
+      <td style={{ color: "black", padding: "8px 5px" }} data-label="Action">
         <button
           style={{
             color: "white",
             background: "red",
-            padding: "5px 10px",
+            padding: "5px 8px",
             border: "none",
             borderRadius: "4px",
+            fontSize: "12px",
+            cursor: "pointer"
           }}
           onClick={handleDelete}
         >
-          Delete
+          Del
         </button>
       </td>
     </tr>
@@ -156,7 +201,7 @@ function Admin() {
   const [memorizationRecordings, setMemorizationRecordings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState('recorder'); // 'recorder' or 'memorization'
+  const [activeTab, setActiveTab] = useState('recorder');
 
   const fetchData = useCallback(async () => {
     try {
@@ -169,7 +214,6 @@ function Admin() {
         return;
       }
 
-      // Fetch recorder data
       const recorderRes = await fetch("https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats", {
         headers: { 
           Authorization: `Bearer ${token}`,
@@ -177,8 +221,9 @@ function Admin() {
         },
       });
       
-      if (recorderRes.status === 401) {
+      if (recorderRes.status === 401 || recorderRes.status === 403) {
         localStorage.removeItem("adminToken");
+        alert("Session expired. Please login again.");
         window.location.href = "/admin-login";
         return;
       }
@@ -190,7 +235,6 @@ function Admin() {
       const recorderData = await recorderRes.json();
       setAyats(recorderData);
 
-      // Fetch memorization data
       const memRes = await fetch("https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization", {
         headers: { 
           Authorization: `Bearer ${token}`,
@@ -216,6 +260,8 @@ function Admin() {
   }, [fetchData]);
 
   const deleteRecording = useCallback(async (ayatIndex) => {
+    if (!window.confirm("Are you sure you want to delete this recording?")) return;
+    
     try {
       const token = localStorage.getItem("adminToken");
       const res = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/recordings/${ayatIndex}`, {
@@ -224,8 +270,13 @@ function Admin() {
       });
       
       if (res.ok) {
+        // Update state locally without page reload
+        setAyats(prevAyats => prevAyats.map(ayat => 
+          ayat.index === ayatIndex 
+            ? { ...ayat, isRecorded: false, audioUrl: null, audioPath: null, recorderName: null, recorderGender: null, isVerified: false }
+            : ayat
+        ));
         alert("Recording deleted!");
-        fetchData();
       } else {
         const err = await res.json();
         alert("Failed: " + err.error);
@@ -234,9 +285,11 @@ function Admin() {
       console.error("Error deleting recording:", err);
       alert("Error deleting recording");
     }
-  }, [fetchData]);
+  }, []);
 
   const deleteMemorizationRecording = useCallback(async (recordingId) => {
+    if (!window.confirm("Are you sure you want to delete this memorization recording?")) return;
+    
     try {
       const token = localStorage.getItem("adminToken");
       const res = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization/${recordingId}`, {
@@ -245,8 +298,11 @@ function Admin() {
       });
       
       if (res.ok) {
+        // Remove from state locally without page reload
+        setMemorizationRecordings(prevRecordings => 
+          prevRecordings.filter(rec => rec._id !== recordingId)
+        );
         alert("Memorization recording deleted!");
-        fetchData();
       } else {
         const err = await res.json();
         alert("Failed: " + err.error);
@@ -255,7 +311,55 @@ function Admin() {
       console.error("Error deleting memorization recording:", err);
       alert("Error deleting recording");
     }
-  }, [fetchData]);
+  }, []);
+
+  const handleVerifyToggle = useCallback(async (index) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/recordings/${index}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        // Update state locally without page reload
+        setAyats(prevAyats => prevAyats.map(ayat => 
+          ayat.index === index 
+            ? { ...ayat, isVerified: !ayat.isVerified }
+            : ayat
+        ));
+      } else {
+        alert('Failed to update verification');
+      }
+    } catch (error) {
+      console.error('Error updating verification:', error);
+      alert('Error updating verification');
+    }
+  }, []);
+
+  const handleVerifyMemorizationToggle = useCallback(async (recordingId) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization/verify/${recordingId}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        // Update state locally without page reload
+        setMemorizationRecordings(prevRecordings => prevRecordings.map(rec => 
+          rec._id === recordingId 
+            ? { ...rec, isVerified: !rec.isVerified }
+            : rec
+        ));
+      } else {
+        alert('Failed to update verification');
+      }
+    } catch (error) {
+      console.error('Error updating verification:', error);
+      alert('Error updating verification');
+    }
+  }, []);
 
   const downloadCSVComplete = useCallback(() => {
     const headers = ["#", "Ayat Text", "Recording Name", "Recorded At", "Recorder Name", "Gender"];
@@ -360,8 +464,9 @@ function Admin() {
         ayat={ayat}
         index={i}
         onDelete={deleteRecording}
+        onVerify={handleVerifyToggle}
       />
-    )), [ayats, deleteRecording]
+    )), [ayats, deleteRecording, handleVerifyToggle]
   );
 
   const memorizationRows = useMemo(() => 
@@ -371,8 +476,9 @@ function Admin() {
         recording={rec}
         index={i}
         onDelete={deleteMemorizationRecording}
+        onVerify={handleVerifyMemorizationToggle}
       />
-    )), [memorizationRecordings, deleteMemorizationRecording]
+    )), [memorizationRecordings, deleteMemorizationRecording, handleVerifyMemorizationToggle]
   );
 
   if (loading) return (
@@ -409,7 +515,6 @@ function Admin() {
     <div className="container">
       <h1>Admin Dashboard</h1>
 
-      {/* Tab Navigation */}
       <div style={{
         display: 'flex',
         gap: '10px',
@@ -454,7 +559,6 @@ function Admin() {
       </div>
 
       {activeTab === 'recorder' ? (
-        // RECORDER TAB
         <>
           <div className="action-buttons">
             <button onClick={downloadCSVComplete}>⬇ Complete Download CSV</button>
@@ -470,18 +574,19 @@ function Admin() {
             </button>
           </div>
 
-          <table className="ayat-table">
+          <table className="ayat-table" style={{ fontSize: "13px", width: "100%" }}>
             <thead>
-              <tr>
-                <th>#</th>
-                <th>Ayat Text</th>
-                <th>Status</th>
-                <th>Recording</th>
-                <th>Recording Name</th>
-                <th>Recorded At</th>
-                <th>Recorder Name</th>
-                <th>Gender</th>
-                <th>Action</th>
+              <tr style={{ background: "#b31914ff", color: "white" }}>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>#</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Ayat Text</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Status</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recording</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recording Name</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recorded At</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recorder</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Gender</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Verified</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -490,7 +595,6 @@ function Admin() {
           </table>
         </>
       ) : (
-        // MEMORIZATION TAB
         <>
           <div className="action-buttons">
             <button onClick={downloadMemorizationCSV}>📊 Download CSV</button>
@@ -530,18 +634,19 @@ function Admin() {
               <p>Recordings will appear here once users start recording Para 30</p>
             </div>
           ) : (
-            <table className="ayat-table">
+            <table className="ayat-table" style={{ fontSize: "13px", width: "100%" }}>
               <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Ayat Number</th>
-                  <th>Ayat Text</th>
-                  <th>Recorder Name</th>
-                  <th>Gender</th>
-                  <th>Recording</th>
-                  <th>Unique Filename</th>
-                  <th>Recorded At</th>
-                  <th>Action</th>
+                <tr style={{ background: "#bb1e1eff", color: "white" }}>
+                  <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>#</th>
+                  <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Ayat #</th>
+                  <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Ayat Text</th>
+                  <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recorder</th>
+                  <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Gender</th>
+                  <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recording</th>
+                  <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Filename</th>
+                  <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Date</th>
+                  <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Verified</th>
+                  <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Action</th>
                 </tr>
               </thead>
               <tbody>
