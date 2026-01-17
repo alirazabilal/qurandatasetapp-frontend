@@ -662,22 +662,42 @@ function Admin() {
     }
   }, []);
 
-  const downloadCompleteCSV = useCallback(() => {
+  const downloadCompleteCSV = useCallback(async () => {
     try {
-      let csv = 'Index,Ayat_Number,Ayat_Text,Status,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
+      setLoading(true);
+      const token = localStorage.getItem("adminToken");
       
-      ayats.forEach((ayat) => {
+      // Fetch ALL ayats data (not just paginated)
+      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats/all`, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
+        },
+      });
+      
+      if (!response.ok) {
+        alert('Failed to fetch complete data');
+        setLoading(false);
+        return;
+      }
+      
+      const { data: allAyats } = await response.json();
+      
+      let csv = 'Index,Ayat_Number,Ayat_Text_Uthmani,Status,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
+      
+      allAyats.forEach((ayat) => {
         const status = ayat.isRecorded ? 'Recorded' : 'Not Recorded';
         const audioPath = ayat.audioPath || '-';
         const recordedDate = ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleDateString() : '-';
         const recorderName = ayat.recorderName || '-';
         const recorderGender = ayat.recorderGender || '-';
         const verified = ayat.isVerified ? 'Yes' : 'No';
+        const ayatText = (ayat.uthmani_script || ayat.text || '').replace(/"/g, '""');
         
         const row = [
           ayat.index,
           ayat.index + 1,
-          `"${ayat.text?.substring(0, 50) || ''}"`,
+          `"${ayatText}"`,
           status,
           audioPath,
           recordedDate,
@@ -689,32 +709,53 @@ function Admin() {
         csv += row + '\n';
       });
 
-      const blob = new Blob([csv], { type: 'text/csv' });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'complete_ayats_list.csv';
+      link.download = 'complete_ayats_list_uthmani.csv';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      setLoading(false);
     } catch (error) {
       console.error('Error downloading complete CSV:', error);
       alert('Error downloading CSV.');
+      setLoading(false);
     }
-  }, [ayats]);
+  }, []);
 
-  const downloadRecordedOnlyCSV = useCallback(() => {
+  const downloadRecordedOnlyCSV = useCallback(async () => {
     try {
-      let csv = 'Index,Ayat_Number,Ayat_Text,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
+      setLoading(true);
+      const token = localStorage.getItem("adminToken");
       
-      const recordedAyats = ayats.filter(ayat => ayat.isRecorded);
+      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats/all`, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
+        },
+      });
+      
+      if (!response.ok) {
+        alert('Failed to fetch complete data');
+        setLoading(false);
+        return;
+      }
+      
+      const { data: allAyats } = await response.json();
+      const recordedAyats = allAyats.filter(ayat => ayat.isRecorded);
+      
+      let csv = 'Index,Ayat_Number,Ayat_Text_Uthmani,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
       
       recordedAyats.forEach((ayat) => {
+        const ayatText = (ayat.uthmani_script || ayat.text || '').replace(/"/g, '""');
+        
         const row = [
           ayat.index,
           ayat.index + 1,
-          `"${ayat.text?.substring(0, 50) || ''}"`,
+          `"${ayatText}"`,
           ayat.audioPath || '-',
           ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleDateString() : '-',
           ayat.recorderName || '-',
@@ -725,31 +766,53 @@ function Admin() {
         csv += row + '\n';
       });
 
-      const blob = new Blob([csv], { type: 'text/csv' });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'recorded_only_ayats.csv';
+      link.download = 'recorded_only_ayats_uthmani.csv';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      setLoading(false);
     } catch (error) {
       console.error('Error downloading recorded CSV:', error);
       alert('Error downloading CSV.');
+      setLoading(false);
     }
-  }, [ayats]);
+  }, []);
 
-  const downloadMemorizationCompleteCSV = useCallback(() => {
+  const downloadMemorizationCompleteCSV = useCallback(async () => {
     try {
-      let csv = 'Recording_ID,Ayat_Index,Ayat_Number,Ayat_Text,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
+      setLoading(true);
+      const token = localStorage.getItem("adminToken");
       
-      memorizationRecordings.forEach((rec) => {
+      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization/all`, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
+        },
+      });
+      
+      if (!response.ok) {
+        alert('Failed to fetch complete data');
+        setLoading(false);
+        return;
+      }
+      
+      const { recordings: allRecordings } = await response.json();
+      
+      let csv = 'Recording_ID,Ayat_Index,Ayat_Number,Ayat_Text_Uthmani,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
+      
+      allRecordings.forEach((rec) => {
+        const ayatText = (rec.ayatText || '').replace(/"/g, '""');
+        
         const row = [
           rec._id,
           rec.ayatIndex,
           rec.ayatIndex + 1,
-          `"${rec.ayatText?.substring(0, 50) || ''}"`,
+          `"${ayatText}"`,
           rec.audioPath || '-',
           rec.recordedAt ? new Date(rec.recordedAt).toLocaleDateString() : '-',
           rec.recorderName || '-',
@@ -760,33 +823,54 @@ function Admin() {
         csv += row + '\n';
       });
 
-      const blob = new Blob([csv], { type: 'text/csv' });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'para30_complete_recordings.csv';
+      link.download = 'para30_complete_recordings_uthmani.csv';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      setLoading(false);
     } catch (error) {
       console.error('Error downloading complete CSV:', error);
       alert('Error downloading CSV.');
+      setLoading(false);
     }
-  }, [memorizationRecordings]);
+  }, []);
 
-  const downloadMemorizationRecordedOnlyCSV = useCallback(() => {
+  const downloadMemorizationRecordedOnlyCSV = useCallback(async () => {
     try {
-      let csv = 'Recording_ID,Ayat_Index,Ayat_Number,Ayat_Text,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
+      setLoading(true);
+      const token = localStorage.getItem("adminToken");
       
-      const verifiedRecordings = memorizationRecordings.filter(rec => rec.isVerified);
+      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization/all`, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
+        },
+      });
+      
+      if (!response.ok) {
+        alert('Failed to fetch complete data');
+        setLoading(false);
+        return;
+      }
+      
+      const { recordings: allRecordings } = await response.json();
+      const verifiedRecordings = allRecordings.filter(rec => rec.isVerified);
+      
+      let csv = 'Recording_ID,Ayat_Index,Ayat_Number,Ayat_Text_Uthmani,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
       
       verifiedRecordings.forEach((rec) => {
+        const ayatText = (rec.ayatText || '').replace(/"/g, '""');
+        
         const row = [
           rec._id,
           rec.ayatIndex,
           rec.ayatIndex + 1,
-          `"${rec.ayatText?.substring(0, 50) || ''}"`,
+          `"${ayatText}"`,
           rec.audioPath || '-',
           rec.recordedAt ? new Date(rec.recordedAt).toLocaleDateString() : '-',
           rec.recorderName || '-',
@@ -797,20 +881,22 @@ function Admin() {
         csv += row + '\n';
       });
 
-      const blob = new Blob([csv], { type: 'text/csv' });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'para30_verified_only_recordings.csv';
+      link.download = 'para30_verified_only_recordings_uthmani.csv';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      setLoading(false);
     } catch (error) {
       console.error('Error downloading verified CSV:', error);
       alert('Error downloading CSV.');
+      setLoading(false);
     }
-  }, [memorizationRecordings]);
+  }, []);
 
   const tableRows = useMemo(() => 
     ayats.map((ayat, i) => (
