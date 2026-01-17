@@ -662,6 +662,156 @@ function Admin() {
     }
   }, []);
 
+  const downloadCompleteCSV = useCallback(() => {
+    try {
+      let csv = 'Index,Ayat_Number,Ayat_Text,Status,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
+      
+      ayats.forEach((ayat) => {
+        const status = ayat.isRecorded ? 'Recorded' : 'Not Recorded';
+        const audioPath = ayat.audioPath || '-';
+        const recordedDate = ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleDateString() : '-';
+        const recorderName = ayat.recorderName || '-';
+        const recorderGender = ayat.recorderGender || '-';
+        const verified = ayat.isVerified ? 'Yes' : 'No';
+        
+        const row = [
+          ayat.index,
+          ayat.index + 1,
+          `"${ayat.text?.substring(0, 50) || ''}"`,
+          status,
+          audioPath,
+          recordedDate,
+          recorderName,
+          recorderGender,
+          verified
+        ].join(',');
+        
+        csv += row + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'complete_ayats_list.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading complete CSV:', error);
+      alert('Error downloading CSV.');
+    }
+  }, [ayats]);
+
+  const downloadRecordedOnlyCSV = useCallback(() => {
+    try {
+      let csv = 'Index,Ayat_Number,Ayat_Text,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
+      
+      const recordedAyats = ayats.filter(ayat => ayat.isRecorded);
+      
+      recordedAyats.forEach((ayat) => {
+        const row = [
+          ayat.index,
+          ayat.index + 1,
+          `"${ayat.text?.substring(0, 50) || ''}"`,
+          ayat.audioPath || '-',
+          ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleDateString() : '-',
+          ayat.recorderName || '-',
+          ayat.recorderGender || '-',
+          ayat.isVerified ? 'Yes' : 'No'
+        ].join(',');
+        
+        csv += row + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'recorded_only_ayats.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading recorded CSV:', error);
+      alert('Error downloading CSV.');
+    }
+  }, [ayats]);
+
+  const downloadMemorizationCompleteCSV = useCallback(() => {
+    try {
+      let csv = 'Recording_ID,Ayat_Index,Ayat_Number,Ayat_Text,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
+      
+      memorizationRecordings.forEach((rec) => {
+        const row = [
+          rec._id,
+          rec.ayatIndex,
+          rec.ayatIndex + 1,
+          `"${rec.ayatText?.substring(0, 50) || ''}"`,
+          rec.audioPath || '-',
+          rec.recordedAt ? new Date(rec.recordedAt).toLocaleDateString() : '-',
+          rec.recorderName || '-',
+          rec.recorderGender || '-',
+          rec.isVerified ? 'Yes' : 'No'
+        ].join(',');
+        
+        csv += row + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'para30_complete_recordings.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading complete CSV:', error);
+      alert('Error downloading CSV.');
+    }
+  }, [memorizationRecordings]);
+
+  const downloadMemorizationRecordedOnlyCSV = useCallback(() => {
+    try {
+      let csv = 'Recording_ID,Ayat_Index,Ayat_Number,Ayat_Text,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
+      
+      const verifiedRecordings = memorizationRecordings.filter(rec => rec.isVerified);
+      
+      verifiedRecordings.forEach((rec) => {
+        const row = [
+          rec._id,
+          rec.ayatIndex,
+          rec.ayatIndex + 1,
+          `"${rec.ayatText?.substring(0, 50) || ''}"`,
+          rec.audioPath || '-',
+          rec.recordedAt ? new Date(rec.recordedAt).toLocaleDateString() : '-',
+          rec.recorderName || '-',
+          rec.recorderGender || '-',
+          'Yes'
+        ].join(',');
+        
+        csv += row + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'para30_verified_only_recordings.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading verified CSV:', error);
+      alert('Error downloading CSV.');
+    }
+  }, [memorizationRecordings]);
+
   const tableRows = useMemo(() => 
     ayats.map((ayat, i) => (
       <AyatRow
@@ -747,15 +897,17 @@ function Admin() {
             fontSize: '16px'
           }}
         >
-          🎯 Memorization
+          📿 30th Para Recorder
         </button>
       </div>
 
       {activeTab === 'recorder' ? (
         <>
           <div className="action-buttons">
+            <button onClick={downloadCompleteCSV}>📊 Complete Download CSV</button>
+            <button onClick={downloadRecordedOnlyCSV}>📊 Only Recorded Download CSV</button>
             <button onClick={() => openDownloadModal('recorder')}>
-              📥 Download ZIP (Chunked)
+              📥 Download All Audios (ZIP)
             </button>
             <button onClick={() => fetchData(recorderPage, 'recorder')} className="btn-refresh">
               🔄 Refresh
@@ -799,9 +951,10 @@ function Admin() {
       ) : (
         <>
           <div className="action-buttons">
-            <button onClick={downloadMemorizationCSV}>📊 CSV</button>
+            <button onClick={downloadMemorizationCompleteCSV}>📊 Complete Download CSV</button>
+            <button onClick={downloadMemorizationRecordedOnlyCSV}>📊 Only Recorded Download CSV</button>
             <button onClick={() => openDownloadModal('memorization')}>
-              📥 ZIP (Chunked)
+              📥 Download All Audios (ZIP)
             </button>
             <button onClick={() => fetchData(memorizationPage, 'memorization')} className="btn-refresh">
               🔄 Refresh
