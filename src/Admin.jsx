@@ -667,21 +667,30 @@ function Admin() {
       setLoading(true);
       const token = localStorage.getItem("adminToken");
       
-      // Fetch ALL ayats data (not just paginated)
-      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats/all`, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Cache-Control': 'no-cache'
-        },
-      });
+      // Fetch all pages
+      let allAyats = [];
+      let currentPage = 1;
+      let totalPages = 1;
       
-      if (!response.ok) {
-        alert('Failed to fetch complete data');
-        setLoading(false);
-        return;
+      while (currentPage <= totalPages) {
+        const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats?page=${currentPage}&limit=200`, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Cache-Control': 'no-cache'
+          },
+        });
+        
+        if (!response.ok) {
+          alert('Failed to fetch data');
+          setLoading(false);
+          return;
+        }
+        
+        const result = await response.json();
+        allAyats = [...allAyats, ...result.data];
+        totalPages = result.pagination.totalPages;
+        currentPage++;
       }
-      
-      const { data: allAyats } = await response.json();
       
       let csv = 'Index,Ayat_Number,Ayat_Text_Uthmani,Status,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
       
@@ -709,7 +718,7 @@ function Admin() {
         csv += row + '\n';
       });
 
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -721,7 +730,7 @@ function Admin() {
       setLoading(false);
     } catch (error) {
       console.error('Error downloading complete CSV:', error);
-      alert('Error downloading CSV.');
+      alert('Error downloading CSV: ' + error.message);
       setLoading(false);
     }
   }, []);
@@ -731,20 +740,31 @@ function Admin() {
       setLoading(true);
       const token = localStorage.getItem("adminToken");
       
-      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats/all`, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Cache-Control': 'no-cache'
-        },
-      });
+      // Fetch all pages
+      let allAyats = [];
+      let currentPage = 1;
+      let totalPages = 1;
       
-      if (!response.ok) {
-        alert('Failed to fetch complete data');
-        setLoading(false);
-        return;
+      while (currentPage <= totalPages) {
+        const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats?page=${currentPage}&limit=200`, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Cache-Control': 'no-cache'
+          },
+        });
+        
+        if (!response.ok) {
+          alert('Failed to fetch data');
+          setLoading(false);
+          return;
+        }
+        
+        const result = await response.json();
+        allAyats = [...allAyats, ...result.data];
+        totalPages = result.pagination.totalPages;
+        currentPage++;
       }
       
-      const { data: allAyats } = await response.json();
       const recordedAyats = allAyats.filter(ayat => ayat.isRecorded);
       
       let csv = 'Index,Ayat_Number,Ayat_Text_Uthmani,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
@@ -766,7 +786,7 @@ function Admin() {
         csv += row + '\n';
       });
 
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -778,7 +798,7 @@ function Admin() {
       setLoading(false);
     } catch (error) {
       console.error('Error downloading recorded CSV:', error);
-      alert('Error downloading CSV.');
+      alert('Error downloading CSV: ' + error.message);
       setLoading(false);
     }
   }, []);
@@ -788,20 +808,30 @@ function Admin() {
       setLoading(true);
       const token = localStorage.getItem("adminToken");
       
-      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization/all`, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Cache-Control': 'no-cache'
-        },
-      });
+      // Fetch all pages
+      let allRecordings = [];
+      let currentPage = 1;
+      let totalPages = 1;
       
-      if (!response.ok) {
-        alert('Failed to fetch complete data');
-        setLoading(false);
-        return;
+      while (currentPage <= totalPages) {
+        const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization?page=${currentPage}&limit=200`, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Cache-Control': 'no-cache'
+          },
+        });
+        
+        if (!response.ok) {
+          alert('Failed to fetch data');
+          setLoading(false);
+          return;
+        }
+        
+        const result = await response.json();
+        allRecordings = [...allRecordings, ...result.recordings];
+        totalPages = result.pagination.totalPages;
+        currentPage++;
       }
-      
-      const { recordings: allRecordings } = await response.json();
       
       let csv = 'Recording_ID,Ayat_Index,Ayat_Number,Ayat_Text_Uthmani,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
       
@@ -823,7 +853,7 @@ function Admin() {
         csv += row + '\n';
       });
 
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -835,7 +865,7 @@ function Admin() {
       setLoading(false);
     } catch (error) {
       console.error('Error downloading complete CSV:', error);
-      alert('Error downloading CSV.');
+      alert('Error downloading CSV: ' + error.message);
       setLoading(false);
     }
   }, []);
@@ -845,20 +875,31 @@ function Admin() {
       setLoading(true);
       const token = localStorage.getItem("adminToken");
       
-      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization/all`, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Cache-Control': 'no-cache'
-        },
-      });
+      // Fetch all pages
+      let allRecordings = [];
+      let currentPage = 1;
+      let totalPages = 1;
       
-      if (!response.ok) {
-        alert('Failed to fetch complete data');
-        setLoading(false);
-        return;
+      while (currentPage <= totalPages) {
+        const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization?page=${currentPage}&limit=200`, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Cache-Control': 'no-cache'
+          },
+        });
+        
+        if (!response.ok) {
+          alert('Failed to fetch data');
+          setLoading(false);
+          return;
+        }
+        
+        const result = await response.json();
+        allRecordings = [...allRecordings, ...result.recordings];
+        totalPages = result.pagination.totalPages;
+        currentPage++;
       }
       
-      const { recordings: allRecordings } = await response.json();
       const verifiedRecordings = allRecordings.filter(rec => rec.isVerified);
       
       let csv = 'Recording_ID,Ayat_Index,Ayat_Number,Ayat_Text_Uthmani,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
@@ -881,7 +922,7 @@ function Admin() {
         csv += row + '\n';
       });
 
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -893,7 +934,7 @@ function Admin() {
       setLoading(false);
     } catch (error) {
       console.error('Error downloading verified CSV:', error);
-      alert('Error downloading CSV.');
+      alert('Error downloading CSV: ' + error.message);
       setLoading(false);
     }
   }, []);
@@ -990,8 +1031,8 @@ function Admin() {
       {activeTab === 'recorder' ? (
         <>
           <div className="action-buttons">
-            <button onClick={downloadCompleteCSV}>📊 Complete Download CSV</button>
-            <button onClick={downloadRecordedOnlyCSV}>📊 Only Recorded Download CSV</button>
+            <button onClick={downloadCompleteCSV}>📊 Download Complete Recorded CSV</button>
+            <button onClick={downloadRecordedOnlyCSV}>📊 Download Only Verified Recorded CSV</button>
             <button onClick={() => openDownloadModal('recorder')}>
               📥 Download All Audios (ZIP)
             </button>
@@ -1011,16 +1052,16 @@ function Admin() {
           <table className="ayat-table" style={{ fontSize: "13px", width: "100%" }}>
             <thead>
               <tr style={{ background: "#667eea", color: "white" }}>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>#</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Ayat</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Status</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Recording</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Name</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Date</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Recorder</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Gender</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Verified</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Action</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>#</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Ayat</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Status</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recording</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Name</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Date</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recorder</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Gender</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Verified</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Action</th>
               </tr>
             </thead>
             <tbody>{tableRows}</tbody>
@@ -1058,16 +1099,16 @@ function Admin() {
           <table className="ayat-table" style={{ fontSize: "13px", width: "100%" }}>
             <thead>
               <tr style={{ background: "#667eea", color: "white" }}>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>#</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Ayat#</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Ayat Text</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Recorder</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Gender</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Recording</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Filename</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Date</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Verified</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "white" }}>Action</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>#</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Ayat#</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Ayat Text</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recorder</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Gender</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recording</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Filename</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Date</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Verified</th>
+                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Action</th>
               </tr>
             </thead>
             <tbody>{memorizationRows}</tbody>
