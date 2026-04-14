@@ -8,6 +8,7 @@ import Admin from './Admin';
 import AdminLogin from './AdminLogin';
 import Register from './Register';
 import Login from './Login';
+import FlutterRecordings from './FlutterRecordings';
 import './App.css';
 
 // Enhanced Navbar Component
@@ -74,6 +75,13 @@ const Navbar = () => {
             Admin
           </Link>
           <Link 
+            to="/flutter-recordings" 
+            className={`navbar-link ${location.pathname === '/flutter-recordings' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            App Recordings
+          </Link>
+          <Link 
             to="/login" 
             className={`navbar-link ${location.pathname === '/login' ? 'active' : ''}`}
             onClick={() => setIsMenuOpen(false)}
@@ -111,6 +119,7 @@ function App() {
         <Route path="/memorization" element={<Memorization />} />
         <Route path="/bulk-recording" element={<BulkRecording />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/flutter-recordings" element={<FlutterRecordings />} />
         <Route path="/admin-login" element={<AdminLogin onLogin={() => window.location.href = '/admin'} />} />
       </Routes>
     </Router>
