@@ -102,8 +102,8 @@ function App() {
         <Route path="/bulk-recording" element={<BulkRecording />} />
 
         {/* ✅ 29th Para Route */}
-        <Route path="/para29-bulk-recording" element={<Para29BulkRecording />} /> 
-      
+        
+        <Route path="/para29-bulk-recording" element={<Para29BulkRecording />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/flutter-recordings" element={<FlutterRecordings />} />
         <Route
