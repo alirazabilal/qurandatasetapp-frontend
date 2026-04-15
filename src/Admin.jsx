@@ -101,7 +101,7 @@ const AyatRow = React.memo(({ ayat, index, onDelete, onVerify }) => {
   );
 });
 
-const MemorizationRow = React.memo(({ recording, index, onDelete, onVerify }) => {
+const MemorizationRow = React.memo(({ recording, index, onDelete, onVerify, paraLabel = "para30" }) => {
   const handleDelete = () => {
     onDelete(recording._id);
   };
@@ -111,7 +111,7 @@ const MemorizationRow = React.memo(({ recording, index, onDelete, onVerify }) =>
   };
 
   const timestamp = new Date(recording.recordedAt).getTime();
-  const uniqueFilename = `para30_ayat${recording.ayatIndex + 1}_${recording.recorderName}_${recording.recorderGender}_${timestamp}.webm`;
+  const uniqueFilename = `${paraLabel}_ayat${recording.ayatIndex + 1}_${recording.recorderName}_${recording.recorderGender}_${timestamp}.webm`;
 
   return (
     <tr key={recording._id}>
@@ -200,10 +200,10 @@ const MemorizationRow = React.memo(({ recording, index, onDelete, onVerify }) =>
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const pages = [];
   const maxVisible = 5;
-  
+
   let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
   let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-  
+
   if (endPage - startPage < maxVisible - 1) {
     startPage = Math.max(1, endPage - maxVisible + 1);
   }
@@ -236,7 +236,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       >
         ⏮ First
       </button>
-      
+
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -314,7 +314,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 // Download Modal Component
 const DownloadModal = ({ isOpen, onClose, type, totalRecordings }) => {
   const [downloading, setDownloading] = useState(null);
-  
+
   if (!isOpen) return null;
 
   const CHUNK_SIZE = 300;
@@ -330,17 +330,22 @@ const DownloadModal = ({ isOpen, onClose, type, totalRecordings }) => {
   const downloadChunk = async (start, end, index) => {
     setDownloading(index);
     try {
-      const endpoint = type === 'recorder' 
-        ? `/api/download-audios?start=${start}&end=${end}`
-        : `/api/download-memorization-audios?start=${start}&end=${end}`;
-      
+      let endpoint;
+      if (type === 'recorder') {
+        endpoint = `/api/download-audios?start=${start}&end=${end}`;
+      } else if (type === 'memorization') {
+        endpoint = `/api/download-memorization-audios?start=${start}&end=${end}`;
+      } else if (type === 'para29') {
+        endpoint = `/api/download-para29-audios?start=${start}&end=${end}`;
+      }
+
       const link = document.createElement("a");
       link.href = `https://qurandatasetapp-backend-1.onrender.com${endpoint}`;
       link.setAttribute("download", `${type}_recordings_${start}-${end}.zip`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       setTimeout(() => setDownloading(null), 2000);
     } catch (error) {
       console.error('Download error:', error);
@@ -454,15 +459,18 @@ const DownloadModal = ({ isOpen, onClose, type, totalRecordings }) => {
 function Admin() {
   const [ayats, setAyats] = useState([]);
   const [memorizationRecordings, setMemorizationRecordings] = useState([]);
+  const [para29Recordings, setPara29Recordings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState('recorder');
-  
+
   // Pagination states
   const [recorderPage, setRecorderPage] = useState(1);
   const [recorderPagination, setRecorderPagination] = useState(null);
   const [memorizationPage, setMemorizationPage] = useState(1);
   const [memorizationPagination, setMemorizationPagination] = useState(null);
+  const [para29Page, setPara29Page] = useState(1);
+  const [para29Pagination, setPara29Pagination] = useState(null);
 
   // Download modal states
   const [showDownloadModal, setShowDownloadModal] = useState(false);
@@ -472,7 +480,7 @@ function Admin() {
     try {
       setLoading(true);
       setError("");
-      
+
       const token = localStorage.getItem("adminToken");
       if (!token) {
         window.location.href = "/admin-login";
@@ -481,29 +489,30 @@ function Admin() {
 
       if (tab === 'recorder') {
         const recorderRes = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats?page=${page}&limit=200`, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Cache-Control': 'no-cache'
           },
         });
-        
+
         if (recorderRes.status === 401 || recorderRes.status === 403) {
           localStorage.removeItem("adminToken");
           alert("Session expired. Please login again.");
           window.location.href = "/admin-login";
           return;
         }
-        
+
         if (!recorderRes.ok) {
           throw new Error(`Failed to load data. Server returned status: ${recorderRes.status}`);
         }
-        
+
         const recorderData = await recorderRes.json();
         setAyats(recorderData.data);
         setRecorderPagination(recorderData.pagination);
-      } else {
+
+      } else if (tab === 'memorization') {
         const memRes = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization?page=${page}&limit=200`, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Cache-Control': 'no-cache'
           },
@@ -514,8 +523,22 @@ function Admin() {
           setMemorizationRecordings(memData.recordings || []);
           setMemorizationPagination(memData.pagination);
         }
+
+      } else if (tab === 'para29') {
+        const para29Res = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/para29?page=${page}&limit=200`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Cache-Control': 'no-cache'
+          },
+        });
+
+        if (para29Res.ok) {
+          const para29Data = await para29Res.json();
+          setPara29Recordings(para29Data.recordings || []);
+          setPara29Pagination(para29Data.pagination);
+        }
       }
-      
+
     } catch (err) {
       console.error("Error fetching admin data:", err);
       setError(err.message || "Failed to load admin data. Please try again.");
@@ -534,19 +557,25 @@ function Admin() {
     }
   }, [memorizationPage, activeTab]);
 
+  useEffect(() => {
+    if (activeTab === 'para29') {
+      fetchData(para29Page, 'para29');
+    }
+  }, [para29Page, activeTab]);
+
   const deleteRecording = useCallback(async (ayatIndex) => {
     if (!window.confirm("Are you sure you want to delete this recording?")) return;
-    
+
     try {
       const token = localStorage.getItem("adminToken");
       const res = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/recordings/${ayatIndex}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       if (res.ok) {
-        setAyats(prevAyats => prevAyats.map(ayat => 
-          ayat.index === ayatIndex 
+        setAyats(prevAyats => prevAyats.map(ayat =>
+          ayat.index === ayatIndex
             ? { ...ayat, isRecorded: false, audioUrl: null, audioPath: null, recorderName: null, recorderGender: null, isVerified: false }
             : ayat
         ));
@@ -563,16 +592,16 @@ function Admin() {
 
   const deleteMemorizationRecording = useCallback(async (recordingId) => {
     if (!window.confirm("Are you sure you want to delete this memorization recording?")) return;
-    
+
     try {
       const token = localStorage.getItem("adminToken");
       const res = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization/${recordingId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       if (res.ok) {
-        setMemorizationRecordings(prevRecordings => 
+        setMemorizationRecordings(prevRecordings =>
           prevRecordings.filter(rec => rec._id !== recordingId)
         );
         alert("Memorization recording deleted!");
@@ -586,6 +615,31 @@ function Admin() {
     }
   }, []);
 
+  const deletePara29Recording = useCallback(async (recordingId) => {
+    if (!window.confirm("Are you sure you want to delete this Para 29 recording?")) return;
+
+    try {
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/para29/${recordingId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.ok) {
+        setPara29Recordings(prevRecordings =>
+          prevRecordings.filter(rec => rec._id !== recordingId)
+        );
+        alert("Para 29 recording deleted!");
+      } else {
+        const err = await res.json();
+        alert("Failed: " + err.error);
+      }
+    } catch (err) {
+      console.error("Error deleting Para 29 recording:", err);
+      alert("Error deleting recording");
+    }
+  }, []);
+
   const handleVerifyToggle = useCallback(async (index) => {
     try {
       const token = localStorage.getItem('adminToken');
@@ -595,8 +649,8 @@ function Admin() {
       });
 
       if (response.ok) {
-        setAyats(prevAyats => prevAyats.map(ayat => 
-          ayat.index === index 
+        setAyats(prevAyats => prevAyats.map(ayat =>
+          ayat.index === index
             ? { ...ayat, isVerified: !ayat.isVerified }
             : ayat
         ));
@@ -618,8 +672,8 @@ function Admin() {
       });
 
       if (response.ok) {
-        setMemorizationRecordings(prevRecordings => prevRecordings.map(rec => 
-          rec._id === recordingId 
+        setMemorizationRecordings(prevRecordings => prevRecordings.map(rec =>
+          rec._id === recordingId
             ? { ...rec, isVerified: !rec.isVerified }
             : rec
         ));
@@ -632,21 +686,151 @@ function Admin() {
     }
   }, []);
 
+  const handleVerifyPara29Toggle = useCallback(async (recordingId) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/para29/verify/${recordingId}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        setPara29Recordings(prevRecordings => prevRecordings.map(rec =>
+          rec._id === recordingId
+            ? { ...rec, isVerified: !rec.isVerified }
+            : rec
+        ));
+      } else {
+        alert('Failed to update verification');
+      }
+    } catch (error) {
+      console.error('Error updating para29 verification:', error);
+      alert('Error updating verification');
+    }
+  }, []);
+
   const openDownloadModal = (type) => {
     setDownloadType(type);
     setShowDownloadModal(true);
   };
 
-  const downloadMemorizationCSV = useCallback(async () => {
+  const downloadCompleteCSV = useCallback(async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("adminToken");
+
+      let allAyats = [];
+      let currentPage = 1;
+      let totalPages = 1;
+
+      while (currentPage <= totalPages) {
+        const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats?page=${currentPage}&limit=200`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Cache-Control': 'no-cache'
+          },
+        });
+
+        if (!response.ok) {
+          alert('Failed to fetch data');
+          setLoading(false);
+          return;
+        }
+
+        const result = await response.json();
+        allAyats = [...allAyats, ...result.data];
+        totalPages = result.pagination.totalPages;
+        currentPage++;
+      }
+
+      let csv = 'Index,Ayat_Number,Ayat_Text_Uthmani,Status,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
+
+      allAyats.forEach((ayat) => {
+        const status = ayat.isRecorded ? 'Recorded' : 'Not Recorded';
+        const audioPath = ayat.audioPath || '-';
+        const recordedDate = ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleDateString() : '-';
+        const recorderName = ayat.recorderName ? `"${ayat.recorderName}"` : '-';
+        const gender = ayat.recorderGender || '-';
+        const verified = ayat.isVerified ? 'Yes' : 'No';
+        const ayatText = ayat.text ? `"${ayat.text.replace(/"/g, '""').substring(0, 50)}"` : '-';
+
+        csv += `${ayat.index},${ayat.index + 1},${ayatText},${status},${audioPath},${recordedDate},${recorderName},${gender},${verified}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'complete_recordings.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Error downloading CSV: ' + error.message);
+      setLoading(false);
+    }
+  }, []);
+
+  const downloadRecordedOnlyCSV = useCallback(async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("adminToken");
+
+      let allAyats = [];
+      let currentPage = 1;
+      let totalPages = 1;
+
+      while (currentPage <= totalPages) {
+        const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats?page=${currentPage}&limit=200`, {
+          headers: { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache' },
+        });
+
+        if (!response.ok) { alert('Failed to fetch data'); setLoading(false); return; }
+
+        const result = await response.json();
+        allAyats = [...allAyats, ...result.data];
+        totalPages = result.pagination.totalPages;
+        currentPage++;
+      }
+
+      const recordedAyats = allAyats.filter(a => a.isRecorded && a.isVerified);
+      let csv = 'Index,Ayat_Number,Recording_Path,Recorded_Date,Recorder_Name,Gender\n';
+
+      recordedAyats.forEach((ayat) => {
+        const audioPath = ayat.audioPath || '-';
+        const recordedDate = ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleDateString() : '-';
+        const recorderName = ayat.recorderName ? `"${ayat.recorderName}"` : '-';
+        const gender = ayat.recorderGender || '-';
+        csv += `${ayat.index},${ayat.index + 1},${audioPath},${recordedDate},${recorderName},${gender}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'verified_recordings_only.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Error downloading CSV: ' + error.message);
+      setLoading(false);
+    }
+  }, []);
+
+  const downloadMemorizationCompleteCSV = useCallback(async () => {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization/export-csv', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!response.ok) {
-        alert('Failed to download CSV.');
-        return;
-      }
+      if (!response.ok) { alert('Failed to download CSV.'); return; }
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -657,216 +841,7 @@ function Admin() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading CSV:', error);
       alert('Error downloading CSV.');
-    }
-  }, []);
-
-  const downloadCompleteCSV = useCallback(async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("adminToken");
-      
-      // Fetch all pages
-      let allAyats = [];
-      let currentPage = 1;
-      let totalPages = 1;
-      
-      while (currentPage <= totalPages) {
-        const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats?page=${currentPage}&limit=200`, {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            'Cache-Control': 'no-cache'
-          },
-        });
-        
-        if (!response.ok) {
-          alert('Failed to fetch data');
-          setLoading(false);
-          return;
-        }
-        
-        const result = await response.json();
-        allAyats = [...allAyats, ...result.data];
-        totalPages = result.pagination.totalPages;
-        currentPage++;
-      }
-      
-      let csv = 'Index,Ayat_Number,Ayat_Text_Uthmani,Status,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
-      
-      allAyats.forEach((ayat) => {
-        const status = ayat.isRecorded ? 'Recorded' : 'Not Recorded';
-        const audioPath = ayat.audioPath || '-';
-        const recordedDate = ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleDateString() : '-';
-        const recorderName = ayat.recorderName || '-';
-        const recorderGender = ayat.recorderGender || '-';
-        const verified = ayat.isVerified ? 'Yes' : 'No';
-        const ayatText = (ayat.uthmani_script || ayat.text || '').replace(/"/g, '""');
-        
-        const row = [
-          ayat.index,
-          ayat.index + 1,
-          `"${ayatText}"`,
-          status,
-          audioPath,
-          recordedDate,
-          recorderName,
-          recorderGender,
-          verified
-        ].join(',');
-        
-        csv += row + '\n';
-      });
-
-      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'complete_ayats_list_uthmani.csv';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error downloading complete CSV:', error);
-      alert('Error downloading CSV: ' + error.message);
-      setLoading(false);
-    }
-  }, []);
-
-  const downloadRecordedOnlyCSV = useCallback(async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("adminToken");
-      
-      // Fetch all pages
-      let allAyats = [];
-      let currentPage = 1;
-      let totalPages = 1;
-      
-      while (currentPage <= totalPages) {
-        const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/ayats?page=${currentPage}&limit=200`, {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            'Cache-Control': 'no-cache'
-          },
-        });
-        
-        if (!response.ok) {
-          alert('Failed to fetch data');
-          setLoading(false);
-          return;
-        }
-        
-        const result = await response.json();
-        allAyats = [...allAyats, ...result.data];
-        totalPages = result.pagination.totalPages;
-        currentPage++;
-      }
-      
-      const recordedAyats = allAyats.filter(ayat => ayat.isRecorded);
-      
-      let csv = 'Index,Ayat_Number,Ayat_Text_Uthmani,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
-      
-      recordedAyats.forEach((ayat) => {
-        const ayatText = (ayat.uthmani_script || ayat.text || '').replace(/"/g, '""');
-        
-        const row = [
-          ayat.index,
-          ayat.index + 1,
-          `"${ayatText}"`,
-          ayat.audioPath || '-',
-          ayat.recordedAt ? new Date(ayat.recordedAt).toLocaleDateString() : '-',
-          ayat.recorderName || '-',
-          ayat.recorderGender || '-',
-          ayat.isVerified ? 'Yes' : 'No'
-        ].join(',');
-        
-        csv += row + '\n';
-      });
-
-      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'recorded_only_ayats_uthmani.csv';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error downloading recorded CSV:', error);
-      alert('Error downloading CSV: ' + error.message);
-      setLoading(false);
-    }
-  }, []);
-
-  const downloadMemorizationCompleteCSV = useCallback(async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("adminToken");
-      
-      // Fetch all pages
-      let allRecordings = [];
-      let currentPage = 1;
-      let totalPages = 1;
-      
-      while (currentPage <= totalPages) {
-        const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization?page=${currentPage}&limit=200`, {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            'Cache-Control': 'no-cache'
-          },
-        });
-        
-        if (!response.ok) {
-          alert('Failed to fetch data');
-          setLoading(false);
-          return;
-        }
-        
-        const result = await response.json();
-        allRecordings = [...allRecordings, ...result.recordings];
-        totalPages = result.pagination.totalPages;
-        currentPage++;
-      }
-      
-      let csv = 'Recording_ID,Ayat_Index,Ayat_Number,Ayat_Text_Uthmani,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
-      
-      allRecordings.forEach((rec) => {
-        const ayatText = (rec.ayatText || '').replace(/"/g, '""');
-        
-        const row = [
-          rec._id,
-          rec.ayatIndex,
-          rec.ayatIndex + 1,
-          `"${ayatText}"`,
-          rec.audioPath || '-',
-          rec.recordedAt ? new Date(rec.recordedAt).toLocaleDateString() : '-',
-          rec.recorderName || '-',
-          rec.recorderGender || '-',
-          rec.isVerified ? 'Yes' : 'No'
-        ].join(',');
-        
-        csv += row + '\n';
-      });
-
-      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'para30_complete_recordings_uthmani.csv';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error downloading complete CSV:', error);
-      alert('Error downloading CSV: ' + error.message);
-      setLoading(false);
     }
   }, []);
 
@@ -874,55 +849,11 @@ function Admin() {
     try {
       setLoading(true);
       const token = localStorage.getItem("adminToken");
-      
-      // Fetch all pages
-      let allRecordings = [];
-      let currentPage = 1;
-      let totalPages = 1;
-      
-      while (currentPage <= totalPages) {
-        const response = await fetch(`https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization?page=${currentPage}&limit=200`, {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            'Cache-Control': 'no-cache'
-          },
-        });
-        
-        if (!response.ok) {
-          alert('Failed to fetch data');
-          setLoading(false);
-          return;
-        }
-        
-        const result = await response.json();
-        allRecordings = [...allRecordings, ...result.recordings];
-        totalPages = result.pagination.totalPages;
-        currentPage++;
-      }
-      
-      const verifiedRecordings = allRecordings.filter(rec => rec.isVerified);
-      
-      let csv = 'Recording_ID,Ayat_Index,Ayat_Number,Ayat_Text_Uthmani,Recording_Path,Recorded_Date,Recorder_Name,Gender,Verified\n';
-      
-      verifiedRecordings.forEach((rec) => {
-        const ayatText = (rec.ayatText || '').replace(/"/g, '""');
-        
-        const row = [
-          rec._id,
-          rec.ayatIndex,
-          rec.ayatIndex + 1,
-          `"${ayatText}"`,
-          rec.audioPath || '-',
-          rec.recordedAt ? new Date(rec.recordedAt).toLocaleDateString() : '-',
-          rec.recorderName || '-',
-          rec.recorderGender || '-',
-          'Yes'
-        ].join(',');
-        
-        csv += row + '\n';
+      const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/admin/memorization/export-csv', {
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+      if (!response.ok) { alert('Failed to download CSV.'); setLoading(false); return; }
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -939,7 +870,28 @@ function Admin() {
     }
   }, []);
 
-  const tableRows = useMemo(() => 
+  const downloadPara29CSV = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch('https://qurandatasetapp-backend-1.onrender.com/api/admin/para29/export-csv', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!response.ok) { alert('Failed to download CSV.'); return; }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'para29_recordings.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      alert('Error downloading Para 29 CSV.');
+    }
+  }, []);
+
+  const tableRows = useMemo(() =>
     ayats.map((ayat, i) => (
       <AyatRow
         key={`${ayat.index}-${i}`}
@@ -951,7 +903,7 @@ function Admin() {
     )), [ayats, deleteRecording, handleVerifyToggle, recorderPage]
   );
 
-  const memorizationRows = useMemo(() => 
+  const memorizationRows = useMemo(() =>
     memorizationRecordings.map((rec, i) => (
       <MemorizationRow
         key={rec._id}
@@ -959,8 +911,22 @@ function Admin() {
         index={i + ((memorizationPage - 1) * 200)}
         onDelete={deleteMemorizationRecording}
         onVerify={handleVerifyMemorizationToggle}
+        paraLabel="para30"
       />
     )), [memorizationRecordings, deleteMemorizationRecording, handleVerifyMemorizationToggle, memorizationPage]
+  );
+
+  const para29Rows = useMemo(() =>
+    para29Recordings.map((rec, i) => (
+      <MemorizationRow
+        key={rec._id}
+        recording={rec}
+        index={i + ((para29Page - 1) * 200)}
+        onDelete={deletePara29Recording}
+        onVerify={handleVerifyPara29Toggle}
+        paraLabel="para29"
+      />
+    )), [para29Recordings, deletePara29Recording, handleVerifyPara29Toggle, para29Page]
   );
 
   if (loading) return (
@@ -983,10 +949,27 @@ function Admin() {
     </div>
   );
 
+  // Shared table headers for Para 29 and Para 30 memorization tabs
+  const memorizationTableHeaders = (
+    <tr style={{ background: "#667eea", color: "white" }}>
+      <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>#</th>
+      <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Ayat#</th>
+      <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Ayat Text</th>
+      <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recorder</th>
+      <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Gender</th>
+      <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recording</th>
+      <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Filename</th>
+      <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Date</th>
+      <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Verified</th>
+      <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Action</th>
+    </tr>
+  );
+
   return (
     <div className="container">
       <h1>Admin Dashboard</h1>
 
+      {/* Tabs */}
       <div style={{
         display: 'flex',
         gap: '10px',
@@ -1026,9 +1009,25 @@ function Admin() {
         >
           📿 30th Para Recorder
         </button>
+        <button
+          onClick={() => setActiveTab('para29')}
+          style={{
+            padding: '10px 20px',
+            background: activeTab === 'para29' ? '#667eea' : 'transparent',
+            color: activeTab === 'para29' ? 'white' : '#667eea',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '16px'
+          }}
+        >
+          📿 29th Para Recorder
+        </button>
       </div>
 
-      {activeTab === 'recorder' ? (
+      {/* Recorder Tab */}
+      {activeTab === 'recorder' && (
         <>
           <div className="action-buttons">
             <button onClick={downloadCompleteCSV}>📊 Download Complete Recorded CSV</button>
@@ -1075,7 +1074,10 @@ function Admin() {
             />
           )}
         </>
-      ) : (
+      )}
+
+      {/* 30th Para Memorization Tab */}
+      {activeTab === 'memorization' && (
         <>
           <div className="action-buttons">
             <button onClick={downloadMemorizationCompleteCSV}>📊 Complete Download CSV</button>
@@ -1097,20 +1099,7 @@ function Admin() {
           )}
 
           <table className="ayat-table" style={{ fontSize: "13px", width: "100%" }}>
-            <thead>
-              <tr style={{ background: "#667eea", color: "white" }}>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>#</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Ayat#</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Ayat Text</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recorder</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Gender</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Recording</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Filename</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Date</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Verified</th>
-                <th style={{ padding: "12px 8px", fontSize: "14px", fontWeight: "bold", color: "black" }}>Action</th>
-              </tr>
-            </thead>
+            <thead>{memorizationTableHeaders}</thead>
             <tbody>{memorizationRows}</tbody>
           </table>
 
@@ -1124,14 +1113,52 @@ function Admin() {
         </>
       )}
 
+      {/* 29th Para Tab */}
+      {activeTab === 'para29' && (
+        <>
+          <div className="action-buttons">
+            <button onClick={downloadPara29CSV}>📊 Download Para 29 CSV</button>
+            <button onClick={() => openDownloadModal('para29')}>
+              📥 Download All Audios (ZIP)
+            </button>
+            <button onClick={() => fetchData(para29Page, 'para29')} className="btn-refresh">
+              🔄 Refresh
+            </button>
+          </div>
+
+          {para29Pagination && (
+            <Pagination
+              currentPage={para29Pagination.currentPage}
+              totalPages={para29Pagination.totalPages}
+              onPageChange={setPara29Page}
+            />
+          )}
+
+          <table className="ayat-table" style={{ fontSize: "13px", width: "100%" }}>
+            <thead>{memorizationTableHeaders}</thead>
+            <tbody>{para29Rows}</tbody>
+          </table>
+
+          {para29Pagination && (
+            <Pagination
+              currentPage={para29Pagination.currentPage}
+              totalPages={para29Pagination.totalPages}
+              onPageChange={setPara29Page}
+            />
+          )}
+        </>
+      )}
+
       <DownloadModal
         isOpen={showDownloadModal}
         onClose={() => setShowDownloadModal(false)}
         type={downloadType}
         totalRecordings={
-          downloadType === 'recorder' 
+          downloadType === 'recorder'
             ? (recorderPagination?.totalItems || 0)
-            : (memorizationPagination?.totalItems || 0)
+            : downloadType === 'memorization'
+              ? (memorizationPagination?.totalItems || 0)
+              : (para29Pagination?.totalItems || 0)
         }
       />
     </div>
