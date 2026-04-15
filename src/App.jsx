@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-
 import Home from './Home';
 import Recorder from './Recorder';
 import Memorization from './Memorization';
 import BulkRecording from './BulkRecording';
-import Para29BulkRecording from './Para29BulkRecording';
 import Admin from './Admin';
 import AdminLogin from './AdminLogin';
 import Register from './Register';
 import Login from './Login';
 import FlutterRecordings from './FlutterRecordings';
+import BulkRecording29 from './BulkRecording29';
 import './App.css';
 
 // Enhanced Navbar Component
@@ -23,7 +22,7 @@ const Navbar = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-
+    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -39,46 +38,66 @@ const Navbar = () => {
           <span className="logo-icon">📖</span>
           Quran Recorder
         </Link>
-
+        
         <div className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
-          <Link to="/" className={`navbar-link ${location.pathname === '/' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <Link 
+            to="/" 
+            className={`navbar-link ${location.pathname === '/' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
             Home
           </Link>
-
-          <Link to="/recorder" className={`navbar-link ${location.pathname === '/recorder' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <Link 
+            to="/recorder" 
+            className={`navbar-link ${location.pathname === '/recorder' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
             Recorder
           </Link>
-
-          <Link to="/memorization" className={`navbar-link ${location.pathname === '/memorization' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <Link 
+            to="/memorization" 
+            className={`navbar-link ${location.pathname === '/memorization' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
             30th Para Recorder
           </Link>
-
-          <Link to="/bulk-recording" className={`navbar-link ${location.pathname === '/bulk-recording' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <Link 
+            to="/bulk-recording" 
+            className={`navbar-link ${location.pathname === '/bulk-recording' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
             30th Para Bulk Recorder
           </Link>
-
-          {/* ✅ 29th PARA */}
-          <Link to="/para29-bulk-recording" className={`navbar-link ${location.pathname === '/para29-bulk-recording' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <Link 
+            to="/bulk-recording-29" 
+            className={`navbar-link ${location.pathname === '/bulk-recording-29' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
             29th Para Bulk Recorder
           </Link>
-
-          <Link to="/admin" className={`navbar-link ${location.pathname === '/admin' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <Link 
+            to="/admin" 
+            className={`navbar-link ${location.pathname === '/admin' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
             Admin
           </Link>
-
-          <Link to="/flutter-recordings" className={`navbar-link ${location.pathname === '/flutter-recordings' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
-            App Recordings
-          </Link>
-
-          <Link to="/login" className={`navbar-link ${location.pathname === '/login' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <Link 
+            to="/login" 
+            className={`navbar-link ${location.pathname === '/login' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
             Login
           </Link>
-
-          <Link to="/register" className={`navbar-link ${location.pathname === '/register' ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+          <Link 
+            to="/register" 
+            className={`navbar-link ${location.pathname === '/register' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
+          >
             Register
           </Link>
         </div>
-
+        
         <div className="navbar-toggle" onClick={toggleMenu}>
           <span className="navbar-toggle-bar"></span>
           <span className="navbar-toggle-bar"></span>
@@ -100,16 +119,10 @@ function App() {
         <Route path="/recorder" element={<Recorder />} />
         <Route path="/memorization" element={<Memorization />} />
         <Route path="/bulk-recording" element={<BulkRecording />} />
-
-        {/* ✅ 29th Para Route */}
-        
-        <Route path="/para29-bulk-recording" element={<Para29BulkRecording />} />
+        <Route path="/bulk-recording-29" element={<BulkRecording29 />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/flutter-recordings" element={<FlutterRecordings />} />
-        <Route
-          path="/admin-login"
-          element={<AdminLogin onLogin={() => window.location.href = '/admin'} />}
-        />
+        <Route path="/admin-login" element={<AdminLogin onLogin={() => window.location.href = '/admin'} />} />
       </Routes>
     </Router>
   );
