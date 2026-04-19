@@ -402,6 +402,161 @@ const Para29BarChart = ({ stats, date, total }) => {
 };
 // ====== End Para29BarChart ======
 
+// ====== Para 29 Overall Bar Chart Component ======
+const Para29OverallBarChart = ({ stats, grandTotal }) => {
+  const canvasRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!stats || stats.length === 0) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const padding = { top: 60, right: 30, bottom: 100, left: 70 };
+    const W = canvas.width;
+    const H = canvas.height;
+    const chartW = W - padding.left - padding.right;
+    const chartH = H - padding.top - padding.bottom;
+
+    const maxVal = Math.max(...stats.map(s => s.totalCount));
+    const barCount = stats.length;
+    const barWidth = Math.max(20, Math.min(60, (chartW / barCount) * 0.6));
+    const gap = (chartW - barWidth * barCount) / (barCount + 1);
+
+    // Clear
+    ctx.clearRect(0, 0, W, H);
+
+    // Background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+
+    // Title
+    ctx.fillStyle = '#764ba2';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Para 29 Overall Recordings — All Time  |  Grand Total: ${grandTotal}`, W / 2, 30);
+
+    // Y-axis gridlines + labels
+    const ySteps = 5;
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1;
+    ctx.fillStyle = '#555';
+    ctx.font = '11px Arial';
+    ctx.textAlign = 'right';
+
+    for (let i = 0; i <= ySteps; i++) {
+      const val = Math.round((maxVal / ySteps) * i);
+      const y = padding.top + chartH - (val / maxVal) * chartH;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(padding.left + chartW, y);
+      ctx.stroke();
+      ctx.fillText(val, padding.left - 8, y + 4);
+    }
+
+    // Bars
+    stats.forEach((s, i) => {
+      const barH = (s.totalCount / maxVal) * chartH;
+      const x = padding.left + gap + i * (barWidth + gap);
+      const y = padding.top + chartH - barH;
+      const color = CHART_COLORS[i % CHART_COLORS.length];
+
+      // Bar shadow
+      ctx.shadowColor = 'rgba(0,0,0,0.15)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.roundRect(x, y, barWidth, barH, [6, 6, 0, 0]);
+      ctx.fill();
+
+      // Reset shadow
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+
+      // Count label on top of bar
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 13px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(s.totalCount, x + barWidth / 2, y - 6);
+
+      // Name label below bar (rotated)
+      ctx.save();
+      ctx.translate(x + barWidth / 2, padding.top + chartH + 10);
+      ctx.rotate(-Math.PI / 4);
+      ctx.fillStyle = '#333';
+      ctx.font = '11px Arial';
+      ctx.textAlign = 'right';
+      ctx.fillText(s.recorderName, 0, 0);
+      ctx.restore();
+    });
+
+    // X axis line
+    ctx.strokeStyle = '#aaa';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, padding.top + chartH);
+    ctx.lineTo(padding.left + chartW, padding.top + chartH);
+    ctx.stroke();
+
+    // Y axis line
+    ctx.beginPath();
+    ctx.moveTo(padding.left, padding.top);
+    ctx.lineTo(padding.left, padding.top + chartH);
+    ctx.stroke();
+
+  }, [stats, grandTotal]);
+
+  const downloadChart = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = `para29_overall_chart.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+
+  if (!stats || stats.length === 0) return null;
+
+  const canvasWidth = Math.max(600, stats.length * 80 + 120);
+
+  return (
+    <div style={{ marginTop: '28px', textAlign: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+        <h3 style={{ margin: 0, color: '#333', fontSize: '15px' }}>📊 Overall Recordings Chart (All Time)</h3>
+        <button
+          onClick={downloadChart}
+          style={{
+            background: '#764ba2',
+            color: 'white',
+            border: 'none',
+            padding: '7px 18px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '13px'
+          }}
+        >
+          🖼️ Download Chart (PNG)
+        </button>
+      </div>
+      <div style={{ overflowX: 'auto' }}>
+        <canvas
+          ref={canvasRef}
+          width={canvasWidth}
+          height={420}
+          style={{ border: '1px solid #eee', borderRadius: '8px', maxWidth: '100%' }}
+        />
+      </div>
+    </div>
+  );
+};
+// ====== End Para29OverallBarChart ======
+
 // Pagination Component
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const pages = [];
@@ -686,6 +841,10 @@ function Admin() {
   const [para29StatsDate, setPara29StatsDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [para29StatsLoading, setPara29StatsLoading] = useState(false);
 
+  // Para 29 Overall Stats
+  const [para29OverallStats, setPara29OverallStats] = useState(null);
+  const [para29OverallLoading, setPara29OverallLoading] = useState(false);
+
   const fetchData = useCallback(async (page = 1, tab = 'recorder') => {
     try {
       setLoading(true);
@@ -955,6 +1114,35 @@ function Admin() {
       setPara29StatsLoading(false);
     }
   }, []);
+
+  const fetchPara29OverallStats = useCallback(async () => {
+    try {
+      setPara29OverallLoading(true);
+      const token = localStorage.getItem('adminToken');
+      if (!token) return;
+      const res = await fetch(
+        `https://qurandatasetapp-backend-1.onrender.com/api/admin/para29/overall-stats`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setPara29OverallStats(data);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(`Failed to load overall stats. Status: ${res.status}`);
+      }
+    } catch (err) {
+      alert('Network error fetching overall stats: ' + err.message);
+    } finally {
+      setPara29OverallLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'para29') {
+      fetchPara29OverallStats();
+    }
+  }, [activeTab, fetchPara29OverallStats]);
 
   const downloadPara29DailyStatsCSV = useCallback(async () => {
     try {
@@ -1633,6 +1821,112 @@ function Admin() {
             )}
           </div>
           {/* ====== END DAILY STATS SECTION ====== */}
+
+          {/* ====== OVERALL STATS SECTION ====== */}
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '20px',
+            marginBottom: '24px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ margin: 0, color: '#764ba2', fontSize: '18px' }}>
+                📈 Overall Recordings — Para 29 (All Time)
+              </h2>
+              <button
+                onClick={fetchPara29OverallStats}
+                disabled={para29OverallLoading}
+                style={{
+                  background: '#764ba2',
+                  color: 'white',
+                  border: 'none',
+                  padding: '7px 18px',
+                  borderRadius: '6px',
+                  cursor: para29OverallLoading ? 'not-allowed' : 'pointer',
+                  fontWeight: 'bold',
+                  fontSize: '14px'
+                }}
+              >
+                {para29OverallLoading ? '⏳ Loading...' : '🔄 Refresh'}
+              </button>
+            </div>
+
+            {para29OverallLoading && (
+              <p style={{ color: '#888', fontSize: '14px' }}>Loading overall stats...</p>
+            )}
+
+            {para29OverallStats && !para29OverallLoading && (
+              <>
+                <div style={{
+                  background: '#f5f0ff',
+                  borderRadius: '8px',
+                  padding: '12px 18px',
+                  marginBottom: '14px',
+                  display: 'inline-block'
+                }}>
+                  <span style={{ color: '#333', fontSize: '14px', fontWeight: 'bold' }}>
+                    🎙️ Grand Total Recordings:{' '}
+                    <span style={{ color: '#764ba2', fontSize: '20px' }}>
+                      {para29OverallStats.grandTotal}
+                    </span>
+                    &nbsp;|&nbsp; 👥 Total Users:{' '}
+                    <span style={{ color: '#764ba2', fontSize: '20px' }}>
+                      {para29OverallStats.userStats.length}
+                    </span>
+                  </span>
+                </div>
+
+                {para29OverallStats.userStats.length === 0 ? (
+                  <p style={{ color: '#888', fontSize: '14px', margin: 0 }}>No recordings found.</p>
+                ) : (
+                  <>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+                      <thead>
+                        <tr style={{ background: '#764ba2' }}>
+                          <th style={{ padding: '10px 12px', color: 'black', textAlign: 'left', fontWeight: 'bold' }}>Rank</th>
+                          <th style={{ padding: '10px 12px', color: 'black', textAlign: 'left', fontWeight: 'bold' }}>Recorder Name</th>
+                          <th style={{ padding: '10px 12px', color: 'black', textAlign: 'left', fontWeight: 'bold' }}>Gender</th>
+                          <th style={{ padding: '10px 12px', color: 'black', textAlign: 'center', fontWeight: 'bold' }}>Total Recordings</th>
+                          <th style={{ padding: '10px 12px', color: 'black', textAlign: 'left', fontWeight: 'bold' }}>Last Recorded At</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {para29OverallStats.userStats.map((s, i) => (
+                          <tr key={s.recorderName} style={{ background: i % 2 === 0 ? '#f9f9f9' : 'white' }}>
+                            <td style={{ padding: '9px 12px', color: 'black', fontWeight: 'bold' }}>
+                              {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
+                            </td>
+                            <td style={{ padding: '9px 12px', color: 'black', fontWeight: 'bold' }}>{s.recorderName}</td>
+                            <td style={{ padding: '9px 12px', color: 'black' }}>{s.recorderGender}</td>
+                            <td style={{ padding: '9px 12px', textAlign: 'center' }}>
+                              <span style={{
+                                background: '#764ba2',
+                                color: 'white',
+                                borderRadius: '20px',
+                                padding: '3px 14px',
+                                fontWeight: 'bold',
+                                fontSize: '15px'
+                              }}>
+                                {s.totalCount}
+                              </span>
+                            </td>
+                            <td style={{ padding: '9px 12px', color: '#555', fontSize: '12px' }}>
+                              {new Date(s.lastRecordedAt).toLocaleDateString()} {new Date(s.lastRecordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    {/* ====== OVERALL BAR CHART ====== */}
+                    <Para29OverallBarChart stats={para29OverallStats.userStats} grandTotal={para29OverallStats.grandTotal} />
+                  </>
+                )}
+              </>
+            )}
+          </div>
+          {/* ====== END OVERALL STATS SECTION ====== */}
 
           {para29Pagination && (
             <Pagination
